@@ -1,7 +1,7 @@
 # Configuration for Solar Power Forecasting
 
 # Data Paths
-DATA_FILE = 'pv_01.csv'
+DATA_FILE = 'GermanSolarFarm/data/pv_01.csv'
 MODEL_FILE = 'solar_lstm_model.h5'
 SCALER_FILE = 'scaler.pkl'
 

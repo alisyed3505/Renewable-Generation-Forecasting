@@ -5,7 +5,7 @@ import joblib
 import glob
 import os
 
-def load_data(file_pattern='pv_*.csv'):
+def load_data(file_pattern='GermanSolarFarm/data/pv_*.csv'):
     """
     Loads and preprocesses the solar power dataset from multiple files.
     """

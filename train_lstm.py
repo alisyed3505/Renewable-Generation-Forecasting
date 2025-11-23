@@ -28,7 +28,7 @@ def build_lstm_model(input_shape):
     model.compile(optimizer='adam', loss='mse', metrics=['mae'])
     return model
 
-def train_lstm(data_path='pv_01.csv', model_path='solar_lstm_model.h5', time_steps=24):
+def train_lstm(data_path='GermanSolarFarm/data/pv_01.csv', model_path='solar_lstm_model.h5', time_steps=24):
     print("Loading and preprocessing data...")
     X, y = load_data(data_path)
     
