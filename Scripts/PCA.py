@@ -1,6 +1,7 @@
 import pandas as pd
 
-url = "pv_01.csv"
+# url = "pv_01.csv"
+url = "../GermanSolarFarm/data/pv_01.csv"
 
 #All Components
 df = pd.read_csv(url, names=['hour_of_day','hour_of_day_cos','hour_of_day_sin','month_of_year','month_of_year_cos','month_of_year_sin','season_of_year','season_of_year_cos','season_of_year_sin','sunposition_thetaZ','sunposition_solarAzimuth','sunposition_extraTerr','sunposition_solarHeight','clearsky_diffuse','clearsky_direct','clearsky_global','clearsky_diffuse_agg','clearsky_direct_agg','clearsky_global_agg','Albedo','WindComponentUat0','WindComponentVat0','WindComponentUat100','WindComponentVat100','DewpointTemperatureAt0','TemperatureAt0','PotentialVorticityAt1000','PotentialVorticityAt950','RelativeHumidityAt1000','RelativeHumidityAt950','RelativeHumidityAt0','SnowDensityAt0','SnowDepthAt0','SnowfallPlusStratiformSurfaceAt0','SurfacePressureAt0','SolarRadiationGlobalAt0','SolarRadiationDirectAt0','SolarRadiationDiffuseAt0','TotalCloudCoverAt0','LowerWindSpeed','LowerWindDirection','LowerWindDirectionMath','LowerWindDirectionCos','LowerWindDirectionSin','UpperWindSpeed','UpperWindDirection','UpperWindDirectionMath','UpperWindDirectionCos','UpperWindDirectionSin','power_normed'])

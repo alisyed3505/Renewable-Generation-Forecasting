@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Power Forecasting</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --success: #4ade80;
+            --warning: #fbbf24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h1 { margin: 0; font-size: 2.5rem; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .card h2 { margin-top: 0; color: var(--text-secondary); font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .big-value { font-size: 3rem; font-weight: bold; margin: 10px 0; }
+        .unit { font-size: 1rem; color: var(--text-secondary); }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .status-live { background-color: rgba(74, 222, 128, 0.2); color: var(--success); }
+        .status-dummy { background-color: rgba(251, 191, 36, 0.2); color: var(--warning); }
+        
+        button {
+            background-color: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .full-width { grid-column: span 2; }
+        
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Solar Forecast AI</h1>
+            <p>Real-time PV Generation Prediction</p>
+        </header>
+
+        <div class="grid">
+            <!-- Forecast Card -->
+            <div class="card full-width">
+                <h2>Next Hour Forecast</h2>
+                <div class="big-value" id="forecast-val">--</div>
+                <span class="unit">Normalized Output (0-1)</span>
+                <div style="margin-top: 10px;">
+                    <span id="source-badge" class="status-badge" style="display: none;"></span>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button id="refresh-btn" onclick="fetchForecast()">Refresh Forecast</button>
+                </div>
+            </div>
+
+            <!-- Stats Card -->
+            <div class="card">
+                <h2>Model Accuracy (RMSE)</h2>
+                <div class="big-value" id="rmse-val">--</div>
+                <span class="unit">Lower is better</span>
+            </div>
+
+            <!-- Stats Card -->
+            <div class="card">
+                <h2>Mean Error (MAE)</h2>
+                <div class="big-value" id="mae-val">--</div>
+                <span class="unit">Average deviation</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        async function fetchStats() {
+            try {
+                const res = await fetch(`${API_URL}/stats`);
+                const data = await res.json();
+                document.getElementById('rmse-val').innerText = data.RMSE.toFixed(4);
+                document.getElementById('mae-val').innerText = data.MAE.toFixed(4);
+            } catch (e) {
+                console.error("Failed to fetch stats", e);
+            }
+        }
+
+        async function fetchForecast() {
+            const btn = document.getElementById('refresh-btn');
+            const val = document.getElementById('forecast-val');
+            const badge = document.getElementById('source-badge');
+            
+            btn.disabled = true;
+            btn.innerText = "Loading...";
+            val.innerText = "--";
+            badge.style.display = 'none';
+
+            try {
+                const res = await fetch(`${API_URL}/predict/live`);
+                const data = await res.json();
+                
+                val.innerText = data.predicted_power_normalized.toFixed(4);
+                
+                badge.style.display = 'inline-block';
+                if (data.source === 'live_api') {
+                    badge.innerText = "LIVE DATA";
+                    badge.className = "status-badge status-live";
+                } else {
+                    badge.innerText = "SIMULATED DATA (API LIMIT)";
+                    badge.className = "status-badge status-dummy";
+                }
+            } catch (e) {
+                console.error("Failed to fetch forecast", e);
+                val.innerText = "Error";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Refresh Forecast";
+            }
+        }
+
+        // Init
+        fetchStats();
+        fetchForecast();
+    </script>
+</body>
+</html>
