@@ -17,7 +17,7 @@ async function fetchData(page) {
         currentData = result.data;
         currentPage = result.page;
 
-        renderTable(currentData);
+        renderTable(currentData, result.column_metadata);
         updatePageInfo(result.page, result.total_pages);
 
         if (document.getElementById('chart-view').style.display !== 'none') {
@@ -29,15 +29,24 @@ async function fetchData(page) {
     }
 }
 
-function renderTable(data) {
+function renderTable(data, metadata) {
     const thead = document.getElementById('table-header');
     const tbody = document.getElementById('table-body');
 
-    // Set headers if empty
-    if (thead.innerHTML.trim() === '') {
+    // Set headers if empty or only contains comments/whitespace
+    if (thead.querySelectorAll('th').length === 0) {
+        // Clear existing content (like comments)
+        thead.innerHTML = '';
+
         // Use keys from first row or default list
         const keys = data.length > 0 ? Object.keys(data[0]) : TABLE_COLS;
-        thead.innerHTML = keys.map(k => `<th>${k}</th>`).join('');
+
+        thead.innerHTML = keys.map(k => {
+            const meta = metadata && metadata[k] ? metadata[k] : { label: k, unit: '', description: '' };
+            const label = meta.label;
+            const title = `${meta.description} ${meta.unit ? '(' + meta.unit + ')' : ''}`;
+            return `<th title="${title}">${label}</th>`;
+        }).join('');
     }
 
     tbody.innerHTML = data.map(row => {
