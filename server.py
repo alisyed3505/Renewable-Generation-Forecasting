@@ -2,13 +2,33 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from contextlib import asynccontextmanager
 import config
 from inference_lstm import load_lstm_model, load_scaler, predict_realtime_lstm
 from fetch_live_data import prepare_live_sequence
 import os
+import pandas as pd
+import math
 
-app = FastAPI(title="Solar Power Forecasting API")
+# Load model and scaler on startup
+model = None
+scaler = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global model, scaler
+    print("Loading model and scaler...")
+    model = load_lstm_model(config.MODEL_FILE)
+    scaler = load_scaler(config.SCALER_FILE)
+    if model:
+        print("Model loaded successfully.")
+    else:
+        print("Model failed to load.")
+    yield
+    # Clean up if needed
+    print("Shutting down...")
+
+app = FastAPI(title="Solar Power Forecasting API", lifespan=lifespan)
 
 # Enable CORS for React Frontend
 app.add_middleware(
@@ -26,24 +46,40 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 def read_root():
     return FileResponse('static/index.html')
 
-# Load model and scaler on startup
-model = None
-scaler = None
-
-@app.on_event("startup")
-async def startup_event():
-    global model, scaler
-    print("Loading model and scaler...")
-    model = load_lstm_model(config.MODEL_FILE)
-    scaler = load_scaler(config.SCALER_FILE)
-    if model:
-        print("Model loaded successfully.")
-    else:
-        print("Model failed to load.")
-
-@app.get("/")
-def read_root():
+@app.get("/api/health")
+def health_check():
     return {"status": "online", "service": "Solar Power Forecasting"}
+
+@app.get("/api/data")
+def get_data(page: int = 1, limit: int = 50):
+    """
+    Returns paginated data from the dataset.
+    """
+    try:
+        # Load data (caching this in memory would be better for production, but reading file is fine for now)
+        df = pd.read_csv(config.DATA_FILE, delimiter=';')
+        
+        # Handle Unnamed column if present
+        if df.columns[-1].startswith('Unnamed'):
+            df = df.iloc[:, :-1]
+            
+        total_rows = len(df)
+        total_pages = math.ceil(total_rows / limit)
+        
+        start_idx = (page - 1) * limit
+        end_idx = start_idx + limit
+        
+        data = df.iloc[start_idx:end_idx].to_dict(orient='records')
+        
+        return {
+            "data": data,
+            "total": total_rows,
+            "page": page,
+            "limit": limit,
+            "total_pages": total_pages
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/predict/live")
 def predict_live():
