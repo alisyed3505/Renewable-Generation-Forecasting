@@ -71,7 +71,7 @@ def load_data(file_pattern='GermanSolarFarm/data/pv_*.csv'):
         # For example, if a value is missing, it uses the previous value (forward fill)
         # If the previous value is also missing, it uses the next available value (backward fill)
         # This is a common approach for time series data
-        X = X.fillna(method='ffill').fillna(method='bfill')
+        X = X.ffill().bfill()
         
         # Fill missing target values with 0
         y = y.fillna(0)

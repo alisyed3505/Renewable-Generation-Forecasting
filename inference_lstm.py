@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 
-def load_lstm_model(model_path='solar_lstm_model.h5'):
+def load_lstm_model(model_path='solar_lstm_model.keras'):
     try:
         model = load_model(model_path, compile=False)
         return model

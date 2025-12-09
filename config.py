@@ -2,7 +2,7 @@
 
 # Data Paths
 DATA_FILE = 'GermanSolarFarm/data/pv_*.csv'
-MODEL_FILE = 'solar_lstm_model.h5'
+MODEL_FILE = 'solar_lstm_model.keras'
 SCALER_FILE = 'scaler.pkl'
 
 # Model Hyperparameters

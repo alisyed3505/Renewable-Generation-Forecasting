@@ -69,7 +69,7 @@ def build_lstm_model(input_shape):
     model_path: Path to save the model
     time_steps: Number of time steps to look back
 """
-def train_lstm(data_path='GermanSolarFarm/data/pv_01.csv', model_path='solar_lstm_model.h5', time_steps=24):
+def train_lstm(data_path='GermanSolarFarm/data/pv_01.csv', model_path='solar_lstm_model.keras', time_steps=24):
     print("Loading and preprocessing data...")
     X, y = load_data(data_path)
     
