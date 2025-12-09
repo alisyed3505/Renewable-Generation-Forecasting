@@ -76,7 +76,8 @@ def get_data(page: int = 1, limit: int = 50):
             "total": total_rows,
             "page": page,
             "limit": limit,
-            "total_pages": total_pages
+            "total_pages": total_pages,
+            "column_metadata": config.COLUMN_METADATA
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

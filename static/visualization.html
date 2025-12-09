@@ -146,6 +146,22 @@
             border-color: var(--accent);
             color: var(--accent);
         }
+
+        .table-container {
+            max-height: 70vh;
+            overflow: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            background-color: var(--card-bg);
+            z-index: 10;
+            /* Ensure border remains visible */
+            box-shadow: 0 1px 0 var(--border);
+        }
     </style>
 </head>
 
@@ -166,7 +182,7 @@
 
         <!-- Table View -->
         <div id="table-view" class="card">
-            <div style="overflow-x: auto;">
+            <div class="table-container">
                 <table id="data-table">
                     <thead>
                         <tr id="table-header">

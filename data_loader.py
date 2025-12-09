@@ -67,9 +67,14 @@ def create_sequences(X, y, time_steps=24):
     if isinstance(y, pd.Series):
         y = y.values
         
+    #PREDICTION::::::
     # Optimization: Use numpy striding or simple loop
     # For very large datasets, this loop can be slow. 
     # But for ~100k rows it's acceptable.
+    # PREDICTION BASIS: Time-Series Sequencing
+    # We slide a window of size 'time_steps' (24) across the data.
+    # Input (X): Rows i to i+24 (The past 24 hours)
+    # Target (y): Row i+24 (The power output at the very next hour)
     for i in range(len(X) - time_steps):
         Xs.append(X[i:(i + time_steps)])
         ys.append(y[i + time_steps])

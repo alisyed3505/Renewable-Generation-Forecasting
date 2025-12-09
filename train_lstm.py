@@ -12,19 +12,32 @@ def build_lstm_model(input_shape):
     Builds a robust LSTM model for time series forecasting.
     """
     model = Sequential([
-        # First LSTM layer with return_sequences=True to stack another LSTM
+        # Layer 1: LSTM (The Sequence Reader)
+        # Units=64: The capacity of this layer to remember patterns.
+        # return_sequences=True: Passes the full sequence to the next LSTM layer.
+        # input_shape: (24, 15) -> 24 hours of history, 15 features per hour.
         LSTM(64, return_sequences=True, input_shape=input_shape),
-        Dropout(0.2),
+        Dropout(0.2), # Dropout: Randomly ignores 20% of neurons to prevent overfitting (memorization).
         
-        # Second LSTM layer
+        # Layer 2: LSTM (The Decision Maker)
+        # return_sequences=False: Condenses the sequence into a single vector of understanding.
         LSTM(32, return_sequences=False),
         Dropout(0.2),
         
-        # Dense output layer
+        # Layer 3: Dense (Interpretation)
+        # Standard neural network layer to interpret the LSTM's output.
         Dense(16, activation='relu'),
+
+        # Output Layer: The Prediction
+        # Units=1: Outputs a single number (the predicted power).
+        # Linear activation: Allows the output to be any continuous value (regression).
         Dense(1, activation='linear') # Linear activation for regression
     ])
     
+    # COMPILE: Setting the Rules for Learning
+    # Optimizer='adam': An adaptive learning rate algorithm. Default LR is usually 0.001.
+    # Loss='mse': Mean Squared Error. The model tries to minimize the square of the difference between prediction and reality.
+    # Metrics=['mae']: We also watch Mean Absolute Error to understand average error in simple terms.
     model.compile(optimizer='adam', loss='mse', metrics=['mae'])
     return model
 
