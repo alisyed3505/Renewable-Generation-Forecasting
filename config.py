@@ -1,11 +1,10 @@
 # Configuration for Solar Power Forecasting
 
 # Data Paths
-DATA_FILE = 'GermanSolarFarm/data/pv_01.csv'
+DATA_FILE = 'GermanSolarFarm/data/pv_*.csv'
 MODEL_FILE = 'solar_lstm_model.h5'
 SCALER_FILE = 'scaler.pkl'
 
-# Model Hyperparameters
 # Model Hyperparameters
 # TIME_STEPS = 24: The model looks at the past 24 hours of data to make a prediction.
 # This is the "window" of history the LSTM sees.
@@ -21,6 +20,7 @@ DROPOUT_RATE = 0.2
 # These are the INPUTS the model sees for every hour in the time window.
 # It learns patterns from these 15 variables.
 FEATURE_COLS = [
+    'site_id', # Added site_id as the first feature
     'hour_of_day', 'month_of_year',
     'sunposition_thetaZ', 'sunposition_solarAzimuth', 
     'clearsky_diffuse', 'clearsky_direct', 'clearsky_global',

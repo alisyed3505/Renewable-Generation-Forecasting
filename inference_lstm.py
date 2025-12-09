@@ -34,15 +34,12 @@ def predict_realtime_lstm(model, scaler, recent_data, time_steps=24):
     Returns:
         float: Predicted power output (normalized).
     """
-    # Expected features in order
-    feature_cols = [
-        'hour_of_day', 'month_of_year',
-        'sunposition_thetaZ', 'sunposition_solarAzimuth', 
-        'clearsky_diffuse', 'clearsky_direct', 'clearsky_global',
-        'TemperatureAt0', 'RelativeHumidityAt0', 
-        'SolarRadiationGlobalAt0', 'SolarRadiationDirectAt0', 'SolarRadiationDiffuseAt0',
-        'TotalCloudCoverAt0', 'LowerWindSpeed', 'LowerWindDirection'
-    ]
+    # Expected features in order (Must match training)
+    from config import FEATURE_COLS
+    
+    # Check if 'site_id' is in config but not in input data
+    # If missing, default to site 1 (or prompt error)
+    # We handle this inside the dataframe preparation
     
     # Convert to DataFrame if list
     if isinstance(recent_data, list):
@@ -50,13 +47,19 @@ def predict_realtime_lstm(model, scaler, recent_data, time_steps=24):
     else:
         df = recent_data.copy()
         
+    
     # Ensure columns exist
-    for col in feature_cols:
+    for col in FEATURE_COLS:
         if col not in df.columns:
-            df[col] = 0
+            if col == 'site_id':
+                # Default to site 1 if not provided
+                print("Warning: 'site_id' missing in input data. Defaulting to 1.")
+                df[col] = 1
+            else:
+                df[col] = 0
             
     # Select and reorder columns
-    df = df[feature_cols]
+    df = df[FEATURE_COLS]
     
     # Check if we have enough data
     if len(df) < time_steps:

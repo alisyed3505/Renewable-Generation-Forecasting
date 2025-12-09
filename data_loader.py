@@ -10,22 +10,40 @@ def load_data(file_pattern='GermanSolarFarm/data/pv_*.csv'):
     Loads and preprocesses the solar power dataset from multiple files.
     """
     try:
+        # finding the paths if they exist in the pattern provided in file_pattern variable/parameter
+        # and returns the path in a list
         files = glob.glob(file_pattern)
         print(f"Found {len(files)} dataset files: {files}")
         
+        # initialize an empty list to store dataframes
         all_dfs = []
+        
+        # loop through each file path
         for file_path in files:
             # print(f"Loading {file_path}...")
             df = pd.read_csv(file_path, delimiter=';')
             
+            # If pandas accidentally created a ghost column 'Unnamed' at the end because of a trailing semicolon, delete it
             if df.columns[-1].startswith('Unnamed'):
+                # iloc is used to select rows and columns by integer-location based indexing
+                # first parameter is for rows and second is for columns
+                # :-1 means select all rows and all columns except the last one
                 df = df.iloc[:, :-1]
             
-            # Add a site_id column if we want to distinguish (optional for now)
-            # df['site_id'] = file_path
+            # Extract site_id from filename (e.g., pv_12.csv -> 12)
+            try:
+                # Assumes format .../pv_XX.csv
+                basename = os.path.basename(file_path)
+                site_id_str = basename.replace('pv_', '').replace('.csv', '')
+                site_id = int(site_id_str)
+            except ValueError:
+                site_id = 0 # Default if pattern doesn't match
+                
+            df['site_id'] = site_id
             
             all_dfs.append(df)
-            
+        
+        # Check if any files were loaded
         if not all_dfs:
             print("No files found!")
             return None, None
@@ -33,22 +51,29 @@ def load_data(file_pattern='GermanSolarFarm/data/pv_*.csv'):
         # Combine all data
         full_df = pd.concat(all_dfs, ignore_index=True)
         print(f"Total Combined Rows: {len(full_df)}")
-            
-        feature_cols = [
-            'hour_of_day', 'month_of_year',
-            'sunposition_thetaZ', 'sunposition_solarAzimuth', 
-            'clearsky_diffuse', 'clearsky_direct', 'clearsky_global',
-            'TemperatureAt0', 'RelativeHumidityAt0', 
-            'SolarRadiationGlobalAt0', 'SolarRadiationDirectAt0', 'SolarRadiationDiffuseAt0',
-            'TotalCloudCoverAt0', 'LowerWindSpeed', 'LowerWindDirection'
-        ]
         
-        available_cols = [c for c in feature_cols if c in full_df.columns]
+        # Import config to get valid features
+        from config import FEATURE_COLS
         
+        # Get available columns
+        available_cols = [c for c in FEATURE_COLS if c in full_df.columns]
+        
+        print(f"Using {len(available_cols)} features: {available_cols}")
+        
+        # Select features and target
+        # Features are the input variables (weather, time, etc.)
+        # Target is the output variable (power output)
         X = full_df[available_cols]
         y = full_df['power_normed']
         
+        # Fill missing values with forward fill and backward fill
+        # This handles missing data by using the nearest available values
+        # For example, if a value is missing, it uses the previous value (forward fill)
+        # If the previous value is also missing, it uses the next available value (backward fill)
+        # This is a common approach for time series data
         X = X.fillna(method='ffill').fillna(method='bfill')
+        
+        # Fill missing target values with 0
         y = y.fillna(0)
         
         return X, y
@@ -81,11 +106,32 @@ def create_sequences(X, y, time_steps=24):
         
     return np.array(Xs), np.array(ys)
 
+"""
+PREPROCESSING::::::
+parameters:
+    X: Features (weather, time, etc.)
+    y: Target (power output)
+    time_steps: Number of past hours to look at
+    scaler_path: Path to save the scaler
+returns:
+    X_seq: Input sequences for LSTM
+    y_seq: Target sequences for LSTM
+    scaler: Scaler object for later use
+
+Note: Scaler is used to normalize the data and it is important for the LSTM model to perform well. 
+It works by subtracting the mean of the data from each value and then dividing by the standard deviation of the data. 
+For example:
+    X = [1, 2, 3, 4, 5]
+    mean = 3
+    std = 1.58
+    normalized_X = [(1-3)/1.58, (2-3)/1.58, (3-3)/1.58, (4-3)/1.58, (5-3)/1.58]
+"""
 def preprocess_for_lstm(X, y, time_steps=24, scaler_path='scaler.pkl'):
     """
     Normalizes data and creates sequences.
     """
     print("Normalizing data...")
+    # using minmaxscaler to normalize the data between 0 and 1 
     scaler = MinMaxScaler()
     X_scaled = scaler.fit_transform(X)
     
