@@ -6,6 +6,14 @@ from inference_lstm import load_lstm_model, load_scaler, predict_realtime_lstm
 from fetch_live_data import prepare_live_sequence
 
 def main():
+    """
+    Main function to run the Solar Power Forecasting App.
+    
+    parameters:
+        --train: Train the LSTM model
+        --predict: Run prediction with dummy data
+        --live: Run prediction with LIVE API data
+    """
     parser = argparse.ArgumentParser(description="Solar Power Forecasting App")
     parser.add_argument('--train', action='store_true', help='Train the LSTM model')
     parser.add_argument('--predict', action='store_true', help='Run prediction with dummy data')

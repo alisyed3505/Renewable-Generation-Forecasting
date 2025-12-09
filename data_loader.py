@@ -143,6 +143,18 @@ def preprocess_for_lstm(X, y, time_steps=24, scaler_path='scaler.pkl'):
     return X_seq, y_seq, scaler
 
 def split_data_lstm(X, y, test_size=0.2):
+    """
+    Splits data into training and testing sets.
+    parameters:
+        X: Features (weather, time, etc.)
+        y: Target (power output)
+        test_size: Proportion of data to use for testing
+    returns:
+        X_train: Training features
+        X_test: Testing features
+        y_train: Training target
+        y_test: Testing target
+    """
     split_idx = int(len(X) * (1 - test_size))
     X_train, X_test = X[:split_idx], X[split_idx:]
     y_train, y_test = y[:split_idx], y[split_idx:]
