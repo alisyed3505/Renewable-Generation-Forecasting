@@ -6,6 +6,9 @@ MODEL_FILE = 'solar_lstm_model.h5'
 SCALER_FILE = 'scaler.pkl'
 
 # Model Hyperparameters
+# Model Hyperparameters
+# TIME_STEPS = 24: The model looks at the past 24 hours of data to make a prediction.
+# This is the "window" of history the LSTM sees.
 TIME_STEPS = 24  # Number of past hours to look at
 BATCH_SIZE = 32
 EPOCHS = 50
@@ -15,6 +18,8 @@ DENSE_UNITS = 16
 DROPOUT_RATE = 0.2
 
 # Feature Columns (Do not change order unless retraining)
+# These are the INPUTS the model sees for every hour in the time window.
+# It learns patterns from these 15 variables.
 FEATURE_COLS = [
     'hour_of_day', 'month_of_year',
     'sunposition_thetaZ', 'sunposition_solarAzimuth', 
