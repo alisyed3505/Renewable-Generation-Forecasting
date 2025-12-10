@@ -52,6 +52,16 @@ def load_data(file_pattern='GermanSolarFarm/data/pv_*.csv'):
         full_df = pd.concat(all_dfs, ignore_index=True)
         print(f"Total Combined Rows: {len(full_df)}")
         
+        # Ensure cyclical encoding exists (dataset already contains them)
+        required_time_cols = [
+            'hour_of_day_sin', 'hour_of_day_cos',
+            'month_of_year_sin', 'month_of_year_cos'
+        ]
+
+        for col in required_time_cols:
+            if col not in full_df.columns:
+                raise ValueError(f"Missing required time feature: {col}")
+
         # Import config to get valid features
         from config import FEATURE_COLS
         

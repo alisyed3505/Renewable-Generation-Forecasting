@@ -47,7 +47,14 @@ def predict_realtime_lstm(model, scaler, recent_data, time_steps=24):
     else:
         df = recent_data.copy()
         
-    
+    if 'hour_of_day' in df.columns:
+        df['hour_of_day_sin'] = np.sin(2 * np.pi * df['hour_of_day'] / 24)
+        df['hour_of_day_cos'] = np.cos(2 * np.pi * df['hour_of_day'] / 24)
+
+    if 'month_of_year' in df.columns:
+        df['month_of_year_sin'] = np.sin(2 * np.pi * (df['month_of_year'] - 1) / 12)
+        df['month_of_year_cos'] = np.cos(2 * np.pi * (df['month_of_year'] - 1) / 12)
+
     # Ensure columns exist
     for col in FEATURE_COLS:
         if col not in df.columns:
@@ -90,13 +97,15 @@ if __name__ == "__main__":
         dummy_data = []
         for i in range(24):
             hour = i
-            # Simple simulation of sun rising and setting
+            month = 6
+
             is_day = 6 <= hour <= 18
             rad = 800 if is_day else 0
-            
+
             row = {
+                'site_id': 1,
                 'hour_of_day': hour,
-                'month_of_year': 6,
+                'month_of_year': month,
                 'sunposition_thetaZ': 0.5 if is_day else 1.0,
                 'sunposition_solarAzimuth': 180,
                 'clearsky_diffuse': 50 if is_day else 0,
@@ -107,10 +116,15 @@ if __name__ == "__main__":
                 'SolarRadiationGlobalAt0': rad,
                 'SolarRadiationDirectAt0': rad * 0.8,
                 'SolarRadiationDiffuseAt0': rad * 0.2,
-                'TotalCloudCoverAt0': 0.1,
-                'LowerWindSpeed': 3,
-                'LowerWindDirection': 180
+                'TotalCloudCoverAt0': 0.1
             }
+
+            # Cyclical time encoding
+            row['hour_of_day_sin']  = np.sin(2 * np.pi * hour / 24)
+            row['hour_of_day_cos']  = np.cos(2 * np.pi * hour / 24)
+            row['month_of_year_sin'] = np.sin(2 * np.pi * (month - 1) / 12)
+            row['month_of_year_cos'] = np.cos(2 * np.pi * (month - 1) / 12)
+
             dummy_data.append(row)
             
         pred = predict_realtime_lstm(model, scaler, dummy_data)
