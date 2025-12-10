@@ -52,6 +52,16 @@ def load_data(file_pattern='GermanSolarFarm/data/pv_*.csv'):
         full_df = pd.concat(all_dfs, ignore_index=True)
         print(f"Total Combined Rows: {len(full_df)}")
         
+        # Ensure cyclical encoding exists (dataset already contains them)
+        required_time_cols = [
+            'hour_of_day_sin', 'hour_of_day_cos',
+            'month_of_year_sin', 'month_of_year_cos'
+        ]
+
+        for col in required_time_cols:
+            if col not in full_df.columns:
+                raise ValueError(f"Missing required time feature: {col}")
+
         # Import config to get valid features
         from config import FEATURE_COLS
         
@@ -71,7 +81,7 @@ def load_data(file_pattern='GermanSolarFarm/data/pv_*.csv'):
         # For example, if a value is missing, it uses the previous value (forward fill)
         # If the previous value is also missing, it uses the next available value (backward fill)
         # This is a common approach for time series data
-        X = X.fillna(method='ffill').fillna(method='bfill')
+        X = X.ffill().bfill()
         
         # Fill missing target values with 0
         y = y.fillna(0)
@@ -143,6 +153,18 @@ def preprocess_for_lstm(X, y, time_steps=24, scaler_path='scaler.pkl'):
     return X_seq, y_seq, scaler
 
 def split_data_lstm(X, y, test_size=0.2):
+    """
+    Splits data into training and testing sets.
+    parameters:
+        X: Features (weather, time, etc.)
+        y: Target (power output)
+        test_size: Proportion of data to use for testing
+    returns:
+        X_train: Training features
+        X_test: Testing features
+        y_train: Training target
+        y_test: Testing target
+    """
     split_idx = int(len(X) * (1 - test_size))
     X_train, X_test = X[:split_idx], X[split_idx:]
     y_train, y_test = y[:split_idx], y[split_idx:]

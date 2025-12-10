@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 
-def load_lstm_model(model_path='solar_lstm_model.h5'):
+def load_lstm_model(model_path='solar_lstm_model.keras'):
     try:
         model = load_model(model_path, compile=False)
         return model
@@ -47,7 +47,14 @@ def predict_realtime_lstm(model, scaler, recent_data, time_steps=24):
     else:
         df = recent_data.copy()
         
-    
+    if 'hour_of_day' in df.columns:
+        df['hour_of_day_sin'] = np.sin(2 * np.pi * df['hour_of_day'] / 24)
+        df['hour_of_day_cos'] = np.cos(2 * np.pi * df['hour_of_day'] / 24)
+
+    if 'month_of_year' in df.columns:
+        df['month_of_year_sin'] = np.sin(2 * np.pi * (df['month_of_year'] - 1) / 12)
+        df['month_of_year_cos'] = np.cos(2 * np.pi * (df['month_of_year'] - 1) / 12)
+
     # Ensure columns exist
     for col in FEATURE_COLS:
         if col not in df.columns:
@@ -73,7 +80,7 @@ def predict_realtime_lstm(model, scaler, recent_data, time_steps=24):
     X_scaled = scaler.transform(df_seq)
     
     # Reshape for LSTM (1, time_steps, features)
-    X_input = X_scaled.reshape(1, time_steps, len(feature_cols))
+    X_input = X_scaled.reshape(1, time_steps, len(FEATURE_COLS))
     
     prediction = model.predict(X_input)
     return prediction[0][0]
@@ -90,13 +97,15 @@ if __name__ == "__main__":
         dummy_data = []
         for i in range(24):
             hour = i
-            # Simple simulation of sun rising and setting
+            month = 6
+
             is_day = 6 <= hour <= 18
             rad = 800 if is_day else 0
-            
+
             row = {
+                'site_id': 1,
                 'hour_of_day': hour,
-                'month_of_year': 6,
+                'month_of_year': month,
                 'sunposition_thetaZ': 0.5 if is_day else 1.0,
                 'sunposition_solarAzimuth': 180,
                 'clearsky_diffuse': 50 if is_day else 0,
@@ -107,14 +116,35 @@ if __name__ == "__main__":
                 'SolarRadiationGlobalAt0': rad,
                 'SolarRadiationDirectAt0': rad * 0.8,
                 'SolarRadiationDiffuseAt0': rad * 0.2,
-                'TotalCloudCoverAt0': 0.1,
-                'LowerWindSpeed': 3,
-                'LowerWindDirection': 180
+                'TotalCloudCoverAt0': 0.1
             }
+
+            # Cyclical time encoding
+            row['hour_of_day_sin']  = np.sin(2 * np.pi * hour / 24)
+            row['hour_of_day_cos']  = np.cos(2 * np.pi * hour / 24)
+            row['month_of_year_sin'] = np.sin(2 * np.pi * (month - 1) / 12)
+            row['month_of_year_cos'] = np.cos(2 * np.pi * (month - 1) / 12)
+
             dummy_data.append(row)
             
         pred = predict_realtime_lstm(model, scaler, dummy_data)
         if pred is not None:
-            print(f"Predicted Normalized Power for next hour: {pred:.4f}")
+            # If I later obtain installed capacity → I'll convert to real kW/MW
+            # installed_capacity_kw = 8500   # 8.5 MW
+            # pred_kw = pred * installed_capacity_kw
+            # print(f"Predicted Power: {pred_kw:.1f} kW ({pred*100:.2f}%)")
+
+            if pred <= 0.05:
+                status = "Very low / night time"
+            elif pred <= 0.30:
+                status = "Low production"
+            elif pred <= 0.70:
+                status = "Moderate production"
+            else:
+                status = "High production"
+
+            print(f"Normalized Prediction: {pred:.4f}")
+            print(f"Percentage of max capacity: {pred*100:.2f}%")
+            print(f"Estimated status: {status}")
     else:
         print("Please train the model first using train_lstm.py")
