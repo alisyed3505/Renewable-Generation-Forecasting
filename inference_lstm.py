@@ -73,7 +73,7 @@ def predict_realtime_lstm(model, scaler, recent_data, time_steps=24):
     X_scaled = scaler.transform(df_seq)
     
     # Reshape for LSTM (1, time_steps, features)
-    X_input = X_scaled.reshape(1, time_steps, len(feature_cols))
+    X_input = X_scaled.reshape(1, time_steps, len(FEATURE_COLS))
     
     prediction = model.predict(X_input)
     return prediction[0][0]
@@ -115,6 +115,22 @@ if __name__ == "__main__":
             
         pred = predict_realtime_lstm(model, scaler, dummy_data)
         if pred is not None:
-            print(f"Predicted Normalized Power for next hour: {pred:.4f}")
+            # If I later obtain installed capacity → I'll convert to real kW/MW
+            # installed_capacity_kw = 8500   # 8.5 MW
+            # pred_kw = pred * installed_capacity_kw
+            # print(f"Predicted Power: {pred_kw:.1f} kW ({pred*100:.2f}%)")
+
+            if pred <= 0.05:
+                status = "Very low / night time"
+            elif pred <= 0.30:
+                status = "Low production"
+            elif pred <= 0.70:
+                status = "Moderate production"
+            else:
+                status = "High production"
+
+            print(f"Normalized Prediction: {pred:.4f}")
+            print(f"Percentage of max capacity: {pred*100:.2f}%")
+            print(f"Estimated status: {status}")
     else:
         print("Please train the model first using train_lstm.py")
