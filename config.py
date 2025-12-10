@@ -1,9 +1,9 @@
 # Configuration for Solar Power Forecasting
 
 # Data Paths
-DATA_FILE = 'GermanSolarFarm/data/pv_*.csv'
-MODEL_FILE = 'solar_lstm_model.keras'
-SCALER_FILE = 'scaler.pkl'
+DATA_FILE = 'data/raw/pv_*.csv'
+MODEL_FILE = 'models/solar_lstm_model.keras'
+SCALER_FILE = 'models/scaler.pkl'
 
 # Model Hyperparameters
 # TIME_STEPS = 24: The model looks at the past 24 hours of data to make a prediction.
