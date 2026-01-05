@@ -80,9 +80,13 @@ def predict_realtime_lstm(model, scaler, recent_data, time_steps=24):
     
     # Reshape for LSTM (1, time_steps, features)
     X_input = X_scaled.reshape(1, time_steps, len(FEATURE_COLS))
+
+    print("Input shape:", X_input.shape)
     
-    prediction = model.predict(X_input)
-    return prediction[0][0]
+    prediction = model.predict(X_input)[0][0]
+    prediction = max(prediction, 0)   # no negatives
+    prediction = min(prediction, 1)   # no >1 values
+    return prediction
 
 if __name__ == "__main__":
     model = load_lstm_model()
@@ -126,7 +130,23 @@ if __name__ == "__main__":
 
             dummy_data.append(row)
             
-        pred = predict_realtime_lstm(model, scaler, dummy_data)
+        # print("Preddicting on the data:", dummy_data)
+        # pred = predict_realtime_lstm(model, scaler, dummy_data)
+
+        # Instead of dummy data above I am trying to use real data
+        #  to validate the model like how accurate it is
+        df = pd.read_csv("data/raw/pv_01.csv", sep=";")
+        recent_real_data = df.tail(24)
+        print("Recent real data:")
+        print(df.tail(24)[[
+            "time_idx",
+            "hour_of_day",
+            "clearsky_global",
+            "SolarRadiationGlobalAt0",
+            "power_normed"
+        ]]) 
+        pred = predict_realtime_lstm(model, scaler, recent_real_data)
+
         if pred is not None:
             # If I later obtain installed capacity → I'll convert to real kW/MW
             # installed_capacity_kw = 8500   # 8.5 MW
