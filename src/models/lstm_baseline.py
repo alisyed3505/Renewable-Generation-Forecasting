@@ -46,8 +46,7 @@ def build_lstm_model(input_shape):
 
         # Output Layer: The Prediction
         # Units=1: Outputs a single number (the predicted power).
-        # Linear activation: Allows the output to be any continuous value (regression).
-        Dense(1, activation='linear')
+        Dense(1, activation='relu')
     ])
     
     # COMPILE: Setting the Rules for Learning

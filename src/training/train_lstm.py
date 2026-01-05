@@ -1,5 +1,6 @@
 # current sequential LSTM model
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+import numpy as np
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from src.data.data_loader import load_data, preprocess_for_lstm, split_data_lstm
 from src.models.lstm_baseline import build_lstm_model

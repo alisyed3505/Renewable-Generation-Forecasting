@@ -1,0 +1,15 @@
+LSTM Model Validation Results
+========================================
+
+Samples Tested: 51
+
+RMSE: 0.071406
+MAE: 0.053794
+R² Score: 0.816506
+
+Max Error: 0.296765
+Min Error: 0.001470
+Median Error: 0.041127
+
+Within 5%: 68.6%
+Within 10%: 86.3%
