@@ -1,0 +1,9 @@
+Embedded LSTM Model Performance
+========================================
+
+Training Samples: 100837
+Test Samples: 25210
+Sites Used: 21
+
+RMSE: 0.081675
+MAE: 0.040367

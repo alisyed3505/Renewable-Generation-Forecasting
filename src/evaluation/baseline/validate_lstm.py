@@ -17,8 +17,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-from src.inference.inference_lstm import load_lstm_model, load_scaler
-from config import FEATURE_COLS
+from src.inference.baseline.predict import load_lstm_model, load_scaler
+from config.embedded import FEATURE_COLS
 
 
 def load_validation_data(data_path='data/raw/pv_01.csv'):

@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-import config
+import config.embedded
 
 # API Keys (Ideally move these to env vars or config)
 SOLCAST_KEY = 'yzC0UuVu9DZakpdfen7juaRMGHc_S3VE'

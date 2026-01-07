@@ -1,0 +1,19 @@
+Model Comparison Results
+==================================================
+
+Baseline LSTM:
+  RMSE: 0.0714
+  MAE: 0.0538
+  R²: 0.8165
+  Within 5%: 68.6275
+  Within 10%: 86.2745
+  Samples: 51.0000
+
+Embedded LSTM:
+  RMSE: 0.0192
+  MAE: 0.0042
+  R²: 0.9468
+  Within 5%: 99.0000
+  Within 10%: 99.0000
+  Samples: 100.0000
+
