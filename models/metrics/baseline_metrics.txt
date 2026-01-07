@@ -1,0 +1,7 @@
+Baseline LSTM Model Performance
+========================================
+Train samples: 4967
+Test samples:  1242
+
+RMSE: 0.061885
+MAE:  0.030198
