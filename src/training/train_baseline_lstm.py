@@ -28,6 +28,7 @@ from config.baseline import (
     RANDOM_SEED,
     MODEL_PATH,
     SCALER_PATH,
+    METRICS_PATH,
 )
 
 from src.data.baseline.data_loader import (
@@ -124,14 +125,36 @@ def train_baseline_lstm():
     )
 
     # =====================================
-    # 6. SAVE FINAL MODEL
+    # 6. SAVE FINAL MODEL & METRICS
     # =====================================
     os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
     model.save(MODEL_PATH)
 
+    print("\n📈 Evaluating on test set...")
+
+    y_pred = model.predict(X_test).flatten()
+    y_pred = np.clip(y_pred, 0, 1)
+
+    rmse = np.sqrt(np.mean((y_test - y_pred) ** 2))
+    mae = np.mean(np.abs(y_test - y_pred))
+
+    os.makedirs(os.path.dirname(METRICS_PATH), exist_ok=True)
+    with open(METRICS_PATH, "w") as f:
+        f.write("Baseline LSTM Model Performance\n")
+        f.write("=" * 40 + "\n")
+        f.write(f"Train samples: {len(X_train)}\n")
+        f.write(f"Test samples:  {len(X_test)}\n\n")
+        f.write(f"RMSE: {rmse:.6f}\n")
+        f.write(f"MAE:  {mae:.6f}\n")
+    
+    print("\n" + "=" * 60)
     print("\n✅ Baseline model training complete")
+    print("=" * 60)
+    print(f"   Test RMSE: {rmse:.4f}")
+    print(f"   Test MAE:  {mae:.4f}")
     print(f"   Model saved to: {MODEL_PATH}")
     print(f"   Scaler saved to: {SCALER_PATH}")
+    print(f"   Metrics saved to: {METRICS_PATH}")
 
     return model, history, (X_test, y_test)
 
