@@ -16,7 +16,7 @@ from src.evaluation.baseline.plots import (
     plot_error_distribution,
 )
 from src.evaluation.baseline.evaluate import evaluate_baseline
-
+from src.utils.metrics import save_metrics
 from config.baseline import (
     DATA_FILE,
     TIME_STEPS,
@@ -36,7 +36,7 @@ from src.data.baseline.data_loader import (
     preprocess_baseline_data,
 )
 
-from src.models.baseline.lstm import build_baseline_lstm
+from src.models.baseline.lstm_v1 import build_baseline_lstm
 
 
 def set_seeds(seed: int):
@@ -138,14 +138,31 @@ def train_baseline_lstm():
     rmse = np.sqrt(np.mean((y_test - y_pred) ** 2))
     mae = np.mean(np.abs(y_test - y_pred))
 
-    os.makedirs(os.path.dirname(METRICS_PATH), exist_ok=True)
-    with open(METRICS_PATH, "w") as f:
-        f.write("Baseline LSTM Model Performance\n")
-        f.write("=" * 40 + "\n")
-        f.write(f"Train samples: {len(X_train)}\n")
-        f.write(f"Test samples:  {len(X_test)}\n\n")
-        f.write(f"RMSE: {rmse:.6f}\n")
-        f.write(f"MAE:  {mae:.6f}\n")
+    # os.makedirs(os.path.dirname(METRICS_PATH), exist_ok=True)
+    # with open(METRICS_PATH, "w") as f:
+    #     f.write("Baseline LSTM Model Performance\n")
+    #     f.write("=" * 40 + "\n")
+    #     f.write(f"Train samples: {len(X_train)}\n")
+    #     f.write(f"Test samples:  {len(X_test)}\n\n")
+    #     f.write(f"RMSE: {rmse:.6f}\n")
+    #     f.write(f"MAE:  {mae:.6f}\n")
+
+    save_metrics(
+        model_name="baseline_lstm",
+        model_version="v1",
+        metrics={
+            "rmse": rmse,
+            "mae": mae
+        },
+        output_path=METRICS_PATH,
+        extra_info={
+            "model_type": "lstm",
+            "scope": "single_site",
+            "site": "pv_01",
+            "time_steps": TIME_STEPS,
+            "epochs_trained": len(history.history["loss"])
+        }
+    )
     
     print("\n" + "=" * 60)
     print("\n✅ Baseline model training complete")

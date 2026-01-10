@@ -7,6 +7,10 @@ IMPORTANT:
 - It assumes exactly ONE PV site
 - site_id is NOT used
 """
+# ==============================
+# MODEL VERSION
+# ==============================
+MODEL_VERSION = "v1"
 
 # ==============================
 # DATA
@@ -72,6 +76,6 @@ FEATURE_COLS_BASELINE = [
 # ARTIFACT PATHS
 # ==============================
 
-MODEL_PATH = "models/baseline_lstm.keras"
-SCALER_PATH = "models/baseline_scaler.pkl"
-METRICS_PATH = "models/metrics/baseline_metrics.txt"
+MODEL_PATH = f"models/baseline_lstm_{MODEL_VERSION}.keras"
+SCALER_PATH = f"models/baseline_scaler_{MODEL_VERSION}.pkl"
+METRICS_PATH = f"models/metrics/baseline_metrics_{MODEL_VERSION}.json"

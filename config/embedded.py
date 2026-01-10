@@ -4,6 +4,11 @@ Configuration for Embedded LSTM (Multi-Site with Site Embeddings)
 """
 
 # ==============================
+# MODEL VERSION
+# ==============================
+MODEL_VERSION = "v1"
+
+# ==============================
 # DATA
 # ==============================
 
@@ -47,6 +52,6 @@ from config.baseline import FEATURE_COLS_BASELINE
 # ARTIFACT PATHS
 # ==============================
 
-MODEL_PATH = "models/embedded_lstm.keras"
-SCALER_PATH = "models/embedded_scaler.pkl"
-METRICS_PATH = "models/metrics/embedded_metrics.txt"
+MODEL_PATH = f"models/embedded_lstm_{MODEL_VERSION}.keras"
+SCALER_PATH = f"models/embedded_scaler_{MODEL_VERSION}.pkl"
+METRICS_PATH = f"models/metrics/embedded_metrics_{MODEL_VERSION}.json"

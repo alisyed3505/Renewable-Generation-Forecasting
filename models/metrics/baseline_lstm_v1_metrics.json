@@ -1,0 +1,14 @@
+{
+  "model_name": "baseline_lstm",
+  "model_version": "v1",
+  "metrics": {
+    "rmse": 0.062110250406488356,
+    "mae": 0.03083547651313002
+  },
+  "timestamp": "2026-01-10T12:54:52.166373",
+  "model_type": "lstm",
+  "scope": "single_site",
+  "site": "pv_01",
+  "time_steps": 8,
+  "epochs_trained": 47
+}
