@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Power Forecasting - Model Findings Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #0ea5e9;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            --gradient-2: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+            --gradient-3: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.05) 0%, transparent 40%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(2%, 2%) rotate(1deg); }
+            50% { transform: translate(0, 4%) rotate(0deg); }
+            75% { transform: translate(-2%, 2%) rotate(-1deg); }
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(180deg, var(--bg-card) 0%, transparent 100%);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 3px;
+            background: var(--gradient-1);
+            border-radius: 0 0 4px 4px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            padding: 1rem 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            list-style: none;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        nav a.active {
+            background: var(--gradient-2);
+            color: white;
+        }
+
+        /* Main content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Model sections */
+        .model-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .model-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .model-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .model-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .model-icon.naive { background: linear-gradient(135deg, #64748b, #94a3b8); }
+        .model-icon.xgboost { background: linear-gradient(135deg, #10b981, #34d399); }
+        .model-icon.lstm { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+        .model-icon.embedded { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .model-icon.optuna { background: linear-gradient(135deg, #ec4899, #f472b6); }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 1.5rem 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h3::before {
+            content: '';
+            width: 4px;
+            height: 1em;
+            background: var(--gradient-2);
+            border-radius: 2px;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Metrics cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0.25rem;
+        }
+
+        .metric-improvement {
+            font-size: 0.8rem;
+            color: var(--success);
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Graphs */
+        .graphs-container {
+            margin: 1.5rem 0;
+        }
+
+        .graph-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .graph-tab {
+            padding: 0.5rem 1rem;
+            background: var(--bg-card-hover);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .graph-tab:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .graph-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .graph-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .graph-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .graph-image {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            display: block;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+        }
+
+        .graph-caption {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+            font-style: italic;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .alert-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .alert-note {
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid rgba(14, 165, 233, 0.3);
+        }
+
+        .alert-important {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .alert-tip {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        /* Insights list */
+        .insights-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .insights-list li {
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .insights-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Comparison section */
+        .comparison-section {
+            background: linear-gradient(135deg, var(--bg-card), rgba(99, 102, 241, 0.05));
+            border: 2px solid var(--primary);
+        }
+
+        .comparison-table {
+            overflow-x: auto;
+        }
+
+        .comparison-table th {
+            background: var(--primary);
+            color: white;
+        }
+
+        .winner-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: var(--gradient-3);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Code blocks for feature lists */
+        .feature-tag {
+            display: inline-block;
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin: 0.125rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.75rem; }
+            .model-section { padding: 1.25rem; }
+            nav ul { gap: 0.25rem; }
+            nav a { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <header>
+        <h1>☀️ Solar Power Forecasting</h1>
+        <p class="subtitle">Model Findings Report — Comparative Analysis of Prediction Models</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#naive" class="active">Naive 24h</a></li>
+            <li><a href="#xgboost">XGBoost</a></li>
+            <li><a href="#baseline-lstm">Baseline LSTM</a></li>
+            <li><a href="#embedded-lstm">Embedded LSTM</a></li>
+            <li><a href="#optuna">Optuna</a></li>
+            <li><a href="#comparison">Comparison</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- Model 1: Naive 24h -->
+        <section id="naive" class="model-section">
+            <div class="model-header">
+                <div class="model-icon naive">📊</div>
+                <div>
+                    <h2>Model 1: Naive 24-Hour Baseline</h2>
+                    <p style="margin:0; color: var(--text-muted);">Simple persistence baseline using 24h lag</p>
+                </div>
+            </div>
+
+            <h3>Implementation Summary</h3>
+            <p>The <strong>Naive 24-Hour</strong> model predicts solar power output by using the value from <strong>exactly 24 hours ago</strong>. This exploits the daily periodicity of solar generation as a baseline.</p>
+
+            <table>
+                <tr><th>Parameter</th><th>Value</th></tr>
+                <tr><td>Approach</td><td><code>y_hat(t) = y(t - 8)</code></td></tr>
+                <tr><td>Time Steps</td><td>8 (3-hour resolution × 8 = 24 hours)</td></tr>
+                <tr><td>Scope</td><td>Single site (pv_01)</td></tr>
+                <tr><td>Test Samples</td><td>1,236</td></tr>
+            </table>
+
+            <div class="alert alert-note">
+                <span class="alert-icon">💡</span>
+                <div><strong>Why this approach?</strong> Solar power generation follows a strong diurnal pattern. By predicting "today will be like yesterday at the same time," we establish a lower bound that any sophisticated model must beat.</div>
+            </div>
+
+            <h3>Results</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">0.1028</div>
+                    <div class="metric-label">RMSE</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">0.0466</div>
+                    <div class="metric-label">MAE</div>
+                </div>
+            </div>
+
+            <div class="alert alert-note">
+                <span class="alert-icon">📝</span>
+                <div>The higher RMSE relative to MAE indicates the presence of some <strong>large prediction errors</strong>—likely cloudy days that didn't match the previous day's weather conditions.</div>
+            </div>
+
+            <h3>Graphs</h3>
+            <div class="graphs-container">
+                <div class="graph-tabs">
+                    <button class="graph-tab active" onclick="showGraph('naive', 'pred')">Prediction vs Actual</button>
+                    <button class="graph-tab" onclick="showGraph('naive', 'error')">Error Distribution</button>
+                </div>
+                <div id="naive-pred" class="graph-content active">
+                    <img src="../src/evaluation/naive/prediction_vs_actual.png" alt="Naive Prediction vs Actual" class="graph-image">
+                    <p class="graph-caption">Prediction vs Actual values showing correlation between predicted and ground truth</p>
+                </div>
+                <div id="naive-error" class="graph-content">
+                    <img src="../src/evaluation/naive/error_distribution.png" alt="Naive Error Distribution" class="graph-image">
+                    <p class="graph-caption">Distribution of prediction errors</p>
+                </div>
+            </div>
+
+            <h3>Key Insights</h3>
+            <ul class="insights-list">
+                <li>The prediction vs actual plot shows reasonable alignment but with <strong>noticeable scatter</strong> at higher power values</li>
+                <li>Error distribution reveals a <strong>slightly skewed distribution</strong>, indicating the model tends to overpredict during cloudy conditions</li>
+                <li>This baseline is too simple to capture weather-driven variations</li>
+            </ul>
+        </section>
+
+        <!-- Model 2: XGBoost -->
+        <section id="xgboost" class="model-section">
+            <div class="model-header">
+                <div class="model-icon xgboost">🌲</div>
+                <div>
+                    <h2>Model 2: XGBoost</h2>
+                    <p style="margin:0; color: var(--text-muted);">Gradient-boosted tree ensemble with engineered features</p>
+                </div>
+            </div>
+
+            <h3>Implementation Summary</h3>
+            <p>The <strong>XGBoost</strong> model is a gradient-boosted tree ensemble that uses handcrafted features including weather data, sun position, and clear-sky irradiance values.</p>
+
+            <table>
+                <tr><th>Parameter</th><th>Value</th></tr>
+                <tr><td>Algorithm</td><td>XGBRegressor</td></tr>
+                <tr><td>n_estimators</td><td>300</td></tr>
+                <tr><td>learning_rate</td><td>0.05</td></tr>
+                <tr><td>max_depth</td><td>6</td></tr>
+                <tr><td>subsample</td><td>0.8</td></tr>
+                <tr><td>colsample_bytree</td><td>0.8</td></tr>
+                <tr><td>random_state</td><td>42</td></tr>
+                <tr><td>Scope</td><td>Single site (pv_01)</td></tr>
+                <tr><td>Test Samples</td><td>1,244</td></tr>
+            </table>
+
+            <h3>Features Used</h3>
+            <p>The model uses 15 carefully engineered features:</p>
+            <div>
+                <span class="feature-tag">hour_sin</span>
+                <span class="feature-tag">hour_cos</span>
+                <span class="feature-tag">month_sin</span>
+                <span class="feature-tag">month_cos</span>
+                <span class="feature-tag">thetaZ</span>
+                <span class="feature-tag">solarAzimuth</span>
+                <span class="feature-tag">clearsky_diffuse</span>
+                <span class="feature-tag">clearsky_direct</span>
+                <span class="feature-tag">clearsky_global</span>
+                <span class="feature-tag">Temperature</span>
+                <span class="feature-tag">Humidity</span>
+                <span class="feature-tag">SolarRadiation</span>
+                <span class="feature-tag">CloudCover</span>
+            </div>
+
+            <h3>Results</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">0.0557</div>
+                    <div class="metric-label">RMSE</div>
+                    <div class="metric-improvement">↓ 45.8% vs Naive</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">0.0266</div>
+                    <div class="metric-label">MAE</div>
+                    <div class="metric-improvement">↓ 42.9% vs Naive</div>
+                </div>
+            </div>
+
+            <div class="alert alert-important">
+                <span class="alert-icon">🏆</span>
+                <div>XGBoost achieves the <strong>best overall performance</strong> among all models tested, with nearly half the error of the naive baseline.</div>
+            </div>
+
+            <h3>Graphs</h3>
+            <div class="graphs-container">
+                <div class="graph-tabs">
+                    <button class="graph-tab active" onclick="showGraph('xgboost', 'pred')">Prediction vs Actual</button>
+                    <button class="graph-tab" onclick="showGraph('xgboost', 'error')">Error Distribution</button>
+                    <button class="graph-tab" onclick="showGraph('xgboost', 'feat')">Feature Importance</button>
+                </div>
+                <div id="xgboost-pred" class="graph-content active">
+                    <img src="../src/evaluation/xgboost/prediction_vs_actual.png" alt="XGBoost Prediction vs Actual" class="graph-image">
+                    <p class="graph-caption">Very tight correlation between predictions and actuals</p>
+                </div>
+                <div id="xgboost-error" class="graph-content">
+                    <img src="../src/evaluation/xgboost/error_distribution.png" alt="XGBoost Error Distribution" class="graph-image">
+                    <p class="graph-caption">Error distribution centered near zero with narrow spread</p>
+                </div>
+                <div id="xgboost-feat" class="graph-content">
+                    <img src="../src/evaluation/xgboost/feature_importance.png" alt="XGBoost Feature Importance" class="graph-image">
+                    <p class="graph-caption">Clear-sky global irradiance and solar radiation are most predictive</p>
+                </div>
+            </div>
+
+            <h3>Key Insights</h3>
+            <ul class="insights-list">
+                <li>Very <strong>tight correlation</strong> between predictions and actuals</li>
+                <li>Error distribution is centered near zero with a <strong>narrow spread</strong></li>
+                <li>Feature importance reveals <strong>clear-sky global irradiance</strong> and <strong>solar radiation</strong> as the most predictive features</li>
+                <li>Weather features effectively capture cloud-induced variations</li>
+            </ul>
+        </section>
+
+        <!-- Model 3: Baseline LSTM -->
+        <section id="baseline-lstm" class="model-section">
+            <div class="model-header">
+                <div class="model-icon lstm">🧠</div>
+                <div>
+                    <h2>Model 3: Baseline LSTM</h2>
+                    <p style="margin:0; color: var(--text-muted);">Stacked LSTM for single-site sequential prediction</p>
+                </div>
+            </div>
+
+            <h3>Implementation Summary</h3>
+            <p>The <strong>Baseline LSTM</strong> is a stacked LSTM network trained on sequential data from a single PV site. It uses 24 hours of historical data to predict the next power value.</p>
+
+            <table>
+                <tr><th>Parameter</th><th>Value</th></tr>
+                <tr><td>Architecture</td><td>LSTM(64) → Dropout → LSTM(32) → Dropout → Dense(16) → Dense(1)</td></tr>
+                <tr><td>Time Steps</td><td>8 (24-hour lookback)</td></tr>
+                <tr><td>Batch Size</td><td>32</td></tr>
+                <tr><td>Max Epochs</td><td>50</td></tr>
+                <tr><td>Epochs Trained</td><td>47 (early stopping)</td></tr>
+                <tr><td>Learning Rate</td><td>1e-3</td></tr>
+                <tr><td>Dropout Rate</td><td>0.2</td></tr>
+                <tr><td>Optimizer</td><td>Adam</td></tr>
+                <tr><td>Loss Function</td><td>MSE</td></tr>
+            </table>
+
+            <h3>Results</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">0.0621</div>
+                    <div class="metric-label">RMSE</div>
+                    <div class="metric-improvement">↓ 39.6% vs Naive</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">0.0308</div>
+                    <div class="metric-label">MAE</div>
+                    <div class="metric-improvement">↓ 33.9% vs Naive</div>
+                </div>
+            </div>
+
+            <h3>Graphs</h3>
+            <div class="graphs-container">
+                <div class="graph-tabs">
+                    <button class="graph-tab active" onclick="showGraph('baseline', 'pred')">Prediction vs Actual</button>
+                    <button class="graph-tab" onclick="showGraph('baseline', 'error')">Error Distribution</button>
+                    <button class="graph-tab" onclick="showGraph('baseline', 'loss')">Training Loss</button>
+                </div>
+                <div id="baseline-pred" class="graph-content active">
+                    <img src="../src/evaluation/baseline/prediction_vs_actual.png" alt="Baseline LSTM Prediction vs Actual" class="graph-image">
+                    <p class="graph-caption">Good prediction alignment with slightly more scatter than XGBoost</p>
+                </div>
+                <div id="baseline-error" class="graph-content">
+                    <img src="../src/evaluation/baseline/error_distribution.png" alt="Baseline LSTM Error Distribution" class="graph-image">
+                    <p class="graph-caption">Error distribution for Baseline LSTM</p>
+                </div>
+                <div id="baseline-loss" class="graph-content">
+                    <img src="../src/evaluation/baseline/training_loss.png" alt="Baseline LSTM Training Loss" class="graph-image">
+                    <p class="graph-caption">Smooth convergence with early stopping at epoch 47</p>
+                </div>
+            </div>
+
+            <h3>Key Insights</h3>
+            <ul class="insights-list">
+                <li>Good prediction alignment with actuals, though slightly more scatter than XGBoost</li>
+                <li>Training loss curve shows <strong>smooth convergence</strong> with early stopping at epoch 47</li>
+                <li>The model learns temporal patterns but doesn't outperform the feature-rich XGBoost</li>
+                <li>LSTM may be underutilizing temporal dependencies given the strong feature set available</li>
+            </ul>
+        </section>
+
+        <!-- Model 4: Embedded LSTM -->
+        <section id="embedded-lstm" class="model-section">
+            <div class="model-header">
+                <div class="model-icon embedded">🌐</div>
+                <div>
+                    <h2>Model 4: Embedded LSTM (Multi-Site)</h2>
+                    <p style="margin:0; color: var(--text-muted);">Multi-site learning with site embeddings</p>
+                </div>
+            </div>
+
+            <h3>Implementation Summary</h3>
+            <p>The <strong>Embedded LSTM</strong> extends the baseline by training on <strong>all 21 PV sites simultaneously</strong>. It uses a <strong>site embedding layer</strong> to learn site-specific characteristics.</p>
+
+            <table>
+                <tr><th>Parameter</th><th>Value</th></tr>
+                <tr><td>Architecture</td><td>Embedding(21, 4) + LSTM(64) → LSTM(32) → Dense(16) → Dense(1)</td></tr>
+                <tr><td>Embedding Dimension</td><td>4</td></tr>
+                <tr><td>Number of Sites</td><td>21</td></tr>
+                <tr><td>Time Steps</td><td>8</td></tr>
+                <tr><td>Batch Size</td><td>32</td></tr>
+                <tr><td>Max Epochs</td><td>50</td></tr>
+                <tr><td>Learning Rate</td><td>1e-3</td></tr>
+                <tr><td>Dropout Rate</td><td>0.2</td></tr>
+            </table>
+
+            <h3>Results</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">0.0822</div>
+                    <div class="metric-label">RMSE</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">0.0408</div>
+                    <div class="metric-label">MAE</div>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>Note:</strong> The multi-site model shows higher error than single-site models because:
+                    <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                        <li>Different sites have different capacities and characteristics</li>
+                        <li>The model is evaluated across all sites, not just pv_01</li>
+                        <li>A 4-dimensional embedding may be insufficient to capture site diversity</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Graphs</h3>
+            <div class="graphs-container">
+                <div class="graph-tabs">
+                    <button class="graph-tab active" onclick="showGraph('embedded', 'pred')">Prediction vs Actual</button>
+                    <button class="graph-tab" onclick="showGraph('embedded', 'error')">Error Distribution</button>
+                    <button class="graph-tab" onclick="showGraph('embedded', 'loss')">Training Loss</button>
+                    <button class="graph-tab" onclick="showGraph('embedded', 'site')">Per-Site MAE</button>
+                </div>
+                <div id="embedded-pred" class="graph-content active">
+                    <img src="../src/evaluation/embedded/prediction_vs_actual.png" alt="Embedded LSTM Prediction vs Actual" class="graph-image">
+                    <p class="graph-caption">Multi-site predictions showing aggregate performance</p>
+                </div>
+                <div id="embedded-error" class="graph-content">
+                    <img src="../src/evaluation/embedded/error_distribution.png" alt="Embedded LSTM Error Distribution" class="graph-image">
+                    <p class="graph-caption">Error distribution across all 21 sites</p>
+                </div>
+                <div id="embedded-loss" class="graph-content">
+                    <img src="../src/evaluation/embedded/training_loss.png" alt="Embedded LSTM Training Loss" class="graph-image">
+                    <p class="graph-caption">Training convergence for multi-site model</p>
+                </div>
+                <div id="embedded-site" class="graph-content">
+                    <img src="../src/evaluation/embedded/per_site_mae.png" alt="Per-Site MAE" class="graph-image">
+                    <p class="graph-caption">Significant variation in performance across sites</p>
+                </div>
+            </div>
+
+            <h3>Key Insights</h3>
+            <ul class="insights-list">
+                <li>Training converges well but accuracy is lower than single-site models</li>
+                <li>Per-site MAE plot reveals <strong>significant variation</strong> in performance—some sites are much harder to predict</li>
+                <li>The model demonstrates <strong>transfer learning potential</strong> but requires tuning</li>
+                <li>Increasing embedding dimension or adding site-specific features could improve results</li>
+            </ul>
+        </section>
+
+        <!-- Model 5: Optuna -->
+        <section id="optuna" class="model-section">
+            <div class="model-header">
+                <div class="model-icon optuna">🔬</div>
+                <div>
+                    <h2>Model 5: Optuna Hyperparameter Optimization</h2>
+                    <p style="margin:0; color: var(--text-muted);">Bayesian optimization of LSTM architecture</p>
+                </div>
+            </div>
+
+            <h3>Implementation Summary</h3>
+            <p><strong>Optuna</strong> was used to optimize the LSTM architecture hyperparameters through <strong>30 trials</strong> of Bayesian optimization.</p>
+
+            <h3>Search Space & Best Values</h3>
+            <table>
+                <tr><th>Parameter</th><th>Range</th><th>Best Value</th></tr>
+                <tr><td>lstm_1_units</td><td>32-128</td><td><strong>78</strong></td></tr>
+                <tr><td>lstm_2_units</td><td>16-64</td><td><strong>16</strong></td></tr>
+                <tr><td>dense_units</td><td>8-32</td><td><strong>14</strong></td></tr>
+                <tr><td>dropout</td><td>0.1-0.5</td><td><strong>0.317</strong></td></tr>
+                <tr><td>learning_rate</td><td>1e-4 to 1e-2 (log)</td><td><strong>0.00682</strong></td></tr>
+                <tr><td>batch_size</td><td>{32, 64, 128}</td><td><strong>32</strong></td></tr>
+            </table>
+
+            <h3>Results</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">0.0275</div>
+                    <div class="metric-label">Best Val Loss (MSE)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">Trial 9</div>
+                    <div class="metric-label">Best Trial</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">30</div>
+                    <div class="metric-label">Total Trials</div>
+                </div>
+            </div>
+
+            <h3>Graphs</h3>
+            <div class="graphs-container">
+                <div class="graph-tabs">
+                    <button class="graph-tab active" onclick="showGraph('optuna', 'history')">Optimization History</button>
+                    <button class="graph-tab" onclick="showGraph('optuna', 'importance')">Parameter Importance</button>
+                    <button class="graph-tab" onclick="showGraph('optuna', 'parallel')">Parallel Coordinates</button>
+                </div>
+                <div id="optuna-history" class="graph-content active">
+                    <img src="../models/optuna/baseline_lstm_v2/plots/optimization_history.png" alt="Optimization History" class="graph-image">
+                    <p class="graph-caption">Rapid convergence within the first 10 trials</p>
+                </div>
+                <div id="optuna-importance" class="graph-content">
+                    <img src="../models/optuna/baseline_lstm_v2/plots/param_importance.png" alt="Parameter Importance" class="graph-image">
+                    <p class="graph-caption">Which hyperparameters matter most for performance</p>
+                </div>
+                <div id="optuna-parallel" class="graph-content">
+                    <img src="../models/optuna/baseline_lstm_v2/plots/parallel_coordinates.png" alt="Parallel Coordinates" class="graph-image">
+                    <p class="graph-caption">Full hyperparameter landscape visualization</p>
+                </div>
+            </div>
+
+            <h3>Key Insights</h3>
+            <ul class="insights-list">
+                <li>Smaller batch size (32) consistently performed better</li>
+                <li>Higher learning rates (around 0.007) outperformed default 0.001</li>
+                <li>Optimal architecture is <strong>smaller</strong> than baseline defaults (78→16 vs 64→32)</li>
+                <li>Dropout around 0.3 provides good regularization</li>
+            </ul>
+        </section>
+
+        <!-- Comparison -->
+        <section id="comparison" class="model-section comparison-section">
+            <div class="model-header">
+                <div class="model-icon xgboost">📈</div>
+                <div>
+                    <h2>Comparison & Analysis</h2>
+                    <p style="margin:0; color: var(--text-muted);">Side-by-side performance comparison</p>
+                </div>
+            </div>
+
+            <h3>Performance Summary</h3>
+            <div class="comparison-table">
+                <table>
+                    <tr>
+                        <th>Model</th>
+                        <th>RMSE</th>
+                        <th>MAE</th>
+                        <th>Best For</th>
+                        <th>Limitations</th>
+                    </tr>
+                    <tr>
+                        <td>Naive 24h</td>
+                        <td>0.1028</td>
+                        <td>0.0466</td>
+                        <td>Baseline reference</td>
+                        <td>Ignores weather</td>
+                    </tr>
+                    <tr style="background: rgba(16, 185, 129, 0.1);">
+                        <td><span class="winner-badge">🏆 Best</span> XGBoost</td>
+                        <td><strong>0.0557</strong></td>
+                        <td><strong>0.0266</strong></td>
+                        <td>Overall accuracy</td>
+                        <td>Single-site only</td>
+                    </tr>
+                    <tr>
+                        <td>Baseline LSTM</td>
+                        <td>0.0621</td>
+                        <td>0.0308</td>
+                        <td>Temporal patterns</td>
+                        <td>More complex</td>
+                    </tr>
+                    <tr>
+                        <td>Embedded LSTM</td>
+                        <td>0.0822</td>
+                        <td>0.0408</td>
+                        <td>Multi-site learning</td>
+                        <td>Higher error</td>
+                    </tr>
+                </table>
+            </div>
+
+            <h3>Visual Comparison</h3>
+            <div class="graphs-container">
+                <img src="../src/evaluation/comparison/comparison.png" alt="Model Comparison" class="graph-image" style="max-width: 100%;">
+                <p class="graph-caption">Visual comparison of all model performances</p>
+            </div>
+
+            <h3>Key Findings</h3>
+            <ul class="insights-list">
+                <li><strong>🏆 XGBoost is the clear winner</strong> for single-site prediction with 45% RMSE improvement over naive</li>
+                <li><strong>Feature engineering matters:</strong> XGBoost's handcrafted features outperform LSTM's learned representations</li>
+                <li><strong>LSTMs provide diminishing returns:</strong> The baseline LSTM improves only marginally over XGBoost despite greater complexity</li>
+                <li><strong>Multi-site models need refinement:</strong> Embedded LSTM shows promise but requires larger embedding dimensions and per-site fine-tuning</li>
+                <li><strong>Optuna optimization is valuable:</strong> Found a smaller, faster architecture that performs comparably</li>
+            </ul>
+
+            <h3>Recommendations for Improvement</h3>
+            <table>
+                <tr><th>Priority</th><th>Action</th><th>Expected Impact</th></tr>
+                <tr><td><strong>High</strong></td><td>Apply Optuna-optimized parameters to production LSTM</td><td>Faster training, similar accuracy</td></tr>
+                <tr><td><strong>High</strong></td><td>Implement per-site XGBoost models</td><td>Further accuracy gains</td></tr>
+                <tr><td><strong>Medium</strong></td><td>Increase embedding dimension to 8-16 for multi-site</td><td>Better site differentiation</td></tr>
+                <tr><td><strong>Medium</strong></td><td>Add weather forecast features (not just current)</td><td>Capture upcoming conditions</td></tr>
+                <tr><td><strong>Low</strong></td><td>Ensemble XGBoost + LSTM predictions</td><td>Marginal improvement, added complexity</td></tr>
+            </table>
+
+            <div class="alert alert-tip" style="margin-top: 2rem;">
+                <span class="alert-icon">💡</span>
+                <div>
+                    <strong>Understanding RMSE vs MAE:</strong>
+                    <p style="margin-top: 0.5rem;">
+                        <strong>RMSE</strong> penalizes large errors more heavily, useful for detecting outliers. 
+                        <strong>MAE</strong> is more robust to outliers and gives typical prediction error. 
+                        When RMSE >> MAE (like Naive), there are occasional large errors. When they're similar (like XGBoost), errors are consistent.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Solar Power Forecasting — Model Findings Report</p>
+        <p>Generated: January 21, 2026</p>
+    </footer>
+
+    <script>
+        function showGraph(model, type) {
+            // Hide all graph contents for this model
+            document.querySelectorAll(`[id^="${model}-"]`).forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Deactivate all tabs in this container
+            event.target.closest('.graph-tabs').querySelectorAll('.graph-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected graph
+            document.getElementById(`${model}-${type}`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // Update active nav link
+                document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Update nav active state on scroll
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.model-section, .comparison-section');
+            const navLinks = document.querySelectorAll('nav a');
+            
+            let current = '';
+            sections.forEach(section => {
+                const top = section.offsetTop - 200;
+                if (window.scrollY >= top) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

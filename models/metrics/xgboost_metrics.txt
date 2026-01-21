@@ -1,7 +1,0 @@
-XGBoost Model Performance (Single Site)
-=============================================
-Train samples: 4973
-Test samples:  1244
-
-RMSE: 0.055694
-MAE:  0.026563
