@@ -1,0 +1,8 @@
+{
+  "lstm_1_units": 78,
+  "lstm_2_units": 16,
+  "dense_units": 14,
+  "dropout": 0.3170078647308546,
+  "lr": 0.006817739988871779,
+  "batch_size": 32
+}

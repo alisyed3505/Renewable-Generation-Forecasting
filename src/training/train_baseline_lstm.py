@@ -16,7 +16,7 @@ from src.evaluation.baseline.plots import (
     plot_error_distribution,
 )
 from src.evaluation.baseline.evaluate import evaluate_baseline
-
+from src.utils.metrics import save_metrics
 from config.baseline import (
     DATA_FILE,
     TIME_STEPS,
@@ -29,6 +29,12 @@ from config.baseline import (
     MODEL_PATH,
     SCALER_PATH,
     METRICS_PATH,
+    PLOTS_DIR,  # NEW: Version-specific plots directory
+    MODEL_VERSION,  # NEW: Auto-detected version
+    LSTM_UNITS_1,  # NEW: For model building
+    LSTM_UNITS_2,  # NEW: For model building
+    DENSE_UNITS,   # NEW: For model building
+    DROPOUT_RATE,  # NEW: For model building
 )
 
 from src.data.baseline.data_loader import (
@@ -36,7 +42,12 @@ from src.data.baseline.data_loader import (
     preprocess_baseline_data,
 )
 
-from src.models.baseline.lstm import build_baseline_lstm
+# Import the correct model version based on MODEL_VERSION
+if MODEL_VERSION == "v1":
+    from src.models.baseline.lstm_v1 import build_baseline_lstm
+else:
+    # v2 and beyond use the versioned model files
+    from src.models.baseline.lstm_v2 import build_baseline_lstm_v2 as build_baseline_lstm
 
 
 def set_seeds(seed: int):
@@ -48,6 +59,9 @@ def set_seeds(seed: int):
 def train_baseline_lstm():
     print("=" * 60)
     print("   BASELINE LSTM TRAINING (SINGLE SITE)")
+    print("=" * 60)
+    print(f"   Training version: {MODEL_VERSION}")
+    print(f"   Plots directory: {PLOTS_DIR}")
     print("=" * 60)
 
     set_seeds(RANDOM_SEED)
@@ -138,14 +152,31 @@ def train_baseline_lstm():
     rmse = np.sqrt(np.mean((y_test - y_pred) ** 2))
     mae = np.mean(np.abs(y_test - y_pred))
 
-    os.makedirs(os.path.dirname(METRICS_PATH), exist_ok=True)
-    with open(METRICS_PATH, "w") as f:
-        f.write("Baseline LSTM Model Performance\n")
-        f.write("=" * 40 + "\n")
-        f.write(f"Train samples: {len(X_train)}\n")
-        f.write(f"Test samples:  {len(X_test)}\n\n")
-        f.write(f"RMSE: {rmse:.6f}\n")
-        f.write(f"MAE:  {mae:.6f}\n")
+    # os.makedirs(os.path.dirname(METRICS_PATH), exist_ok=True)
+    # with open(METRICS_PATH, "w") as f:
+    #     f.write("Baseline LSTM Model Performance\n")
+    #     f.write("=" * 40 + "\n")
+    #     f.write(f"Train samples: {len(X_train)}\n")
+    #     f.write(f"Test samples:  {len(X_test)}\n\n")
+    #     f.write(f"RMSE: {rmse:.6f}\n")
+    #     f.write(f"MAE:  {mae:.6f}\n")
+
+    save_metrics(
+        model_name="baseline_lstm",
+        model_version=MODEL_VERSION,  # Use auto-detected version
+        metrics={
+            "rmse": rmse,
+            "mae": mae
+        },
+        output_path=METRICS_PATH,
+        extra_info={
+            "model_type": "lstm",
+            "scope": "single_site",
+            "site": "pv_01",
+            "time_steps": TIME_STEPS,
+            "epochs_trained": len(history.history["loss"])
+        }
+    )
     
     print("\n" + "=" * 60)
     print("\n✅ Baseline model training complete")
@@ -155,6 +186,7 @@ def train_baseline_lstm():
     print(f"   Model saved to: {MODEL_PATH}")
     print(f"   Scaler saved to: {SCALER_PATH}")
     print(f"   Metrics saved to: {METRICS_PATH}")
+    print(f"   Plots will be saved to: {PLOTS_DIR}")
 
     return model, history, (X_test, y_test)
 
@@ -169,8 +201,8 @@ if __name__ == "__main__":
     print("\n📊 Generating plots...")
     y_true, y_pred, _, _ = evaluate_baseline()
     
-    plot_training_history(history, "src/evaluation/baseline")
-    plot_predictions(y_true, y_pred, "src/evaluation/baseline")
-    plot_error_distribution(y_true, y_pred, "src/evaluation/baseline")
+    plot_training_history(history, PLOTS_DIR)
+    plot_predictions(y_true, y_pred, PLOTS_DIR)
+    plot_error_distribution(y_true, y_pred, PLOTS_DIR)
     
-    print("✅ Plots saved to src/evaluation/baseline/")
+    print(f"✅ Plots saved to {PLOTS_DIR}")

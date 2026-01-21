@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 
 from config.baseline import DATA_FILE, TEST_SPLIT
 from src.models.xgboost.data import prepare_xgboost_data
-
+from src.utils.metrics import save_metrics
 
 def evaluate_xgboost():
     print("=" * 60)
@@ -54,16 +54,33 @@ def evaluate_xgboost():
     # --------------------------------------------------
     # Save metrics
     # --------------------------------------------------
-    metrics_path = "models/metrics/xgboost_metrics.txt"
-    os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
+    metrics_path = "models/metrics/xgboost_v1_metrics.json"
+    # os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
 
-    with open(metrics_path, "w") as f:
-        f.write("XGBoost Model Performance (Single Site)\n")
-        f.write("=" * 45 + "\n")
-        f.write(f"Train samples: {len(X_train)}\n")
-        f.write(f"Test samples:  {len(X_test)}\n\n")
-        f.write(f"RMSE: {rmse:.6f}\n")
-        f.write(f"MAE:  {mae:.6f}\n")
+    # with open(metrics_path, "w") as f:
+    #     f.write("XGBoost Model Performance (Single Site)\n")
+    #     f.write("=" * 45 + "\n")
+    #     f.write(f"Train samples: {len(X_train)}\n")
+    #     f.write(f"Test samples:  {len(X_test)}\n\n")
+    #     f.write(f"RMSE: {rmse:.6f}\n")
+    #     f.write(f"MAE:  {mae:.6f}\n")
+
+    save_metrics(
+        model_name="xgboost",
+        model_version="v1",
+        metrics={
+            "rmse": rmse,
+            "mae": mae
+        },
+        output_path=metrics_path,
+        extra_info={
+            "model_type": "tree",
+            "scope": "single_site",
+            "site": "pv_01",
+            "n_test_samples": len(y_test)
+        }
+    )
+
 
     # --------------------------------------------------
     # Plots

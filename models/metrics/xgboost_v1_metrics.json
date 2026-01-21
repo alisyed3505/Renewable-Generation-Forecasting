@@ -1,0 +1,13 @@
+{
+  "model_name": "xgboost",
+  "model_version": "v1",
+  "metrics": {
+    "rmse": 0.05569431461636757,
+    "mae": 0.02656266838312149
+  },
+  "timestamp": "2026-01-10T12:53:41.575707",
+  "model_type": "tree",
+  "scope": "single_site",
+  "site": "pv_01",
+  "n_test_samples": 1244
+}

@@ -1,6 +1,0 @@
-24h-ago Naive Baseline Performance
-========================================
-Test samples: 1236
-
-RMSE: 0.102773
-MAE:  0.046578

@@ -8,6 +8,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 from config.baseline import DATA_FILE, TEST_SPLIT, TIME_STEPS
 from src.data.baseline.data_loader import load_single_site_csv
 from src.evaluation.naive.naive_24h import naive_24h_predict
+from src.utils.metrics import save_metrics
 
 
 def evaluate_naive_24h():
@@ -46,15 +47,32 @@ def evaluate_naive_24h():
     # --------------------------------------------------
     # Save metrics
     # --------------------------------------------------
-    metrics_path = "models/metrics/naive_24h_metrics.txt"
-    os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
+    metrics_path = "models/metrics/naive_24h_v1_metrics.json"
+    # os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
 
-    with open(metrics_path, "w") as f:
-        f.write("24h-ago Naive Baseline Performance\n")
-        f.write("=" * 40 + "\n")
-        f.write(f"Test samples: {len(y_true)}\n\n")
-        f.write(f"RMSE: {rmse:.6f}\n")
-        f.write(f"MAE:  {mae:.6f}\n")
+    # with open(metrics_path, "w") as f:
+    #     f.write("24h-ago Naive Baseline Performance\n")
+    #     f.write("=" * 40 + "\n")
+    #     f.write(f"Test samples: {len(y_true)}\n\n")
+    #     f.write(f"RMSE: {rmse:.6f}\n")
+    #     f.write(f"MAE:  {mae:.6f}\n")
+
+    save_metrics(
+        model_name="naive_24h",
+        model_version="v1",
+        metrics={
+            "rmse": rmse,
+            "mae": mae
+        },
+        output_path="models/metrics/naive_24h_v1_metrics.json",
+        extra_info={
+            "model_type": "naive",
+            "scope": "single_site",
+            "site": "pv_01",
+            "time_steps": TIME_STEPS,
+            "n_test_samples": len(y_true)
+        }
+    )
 
     # --------------------------------------------------
     # Plots

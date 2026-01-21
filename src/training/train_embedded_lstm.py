@@ -10,6 +10,7 @@ import tensorflow as tf
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 # For plots
 from src.evaluation.embedded.evaluate import evaluate_embedded
+from src.utils.metrics import save_metrics
 from src.evaluation.embedded.plots import (
     plot_training_history,
     plot_predictions,
@@ -35,10 +36,12 @@ from config.embedded import (
     MODEL_PATH,
     SCALER_PATH,
     METRICS_PATH,
+    PLOTS_DIR,  # NEW: Version-specific plots directory
+    MODEL_VERSION,  # NEW: Auto-detected version
 )
 
 from src.data.embedded.data_loader import preprocess_embedded_data
-from src.models.embedded.lstm import build_embedded_lstm
+from src.models.embedded.lstm_v1 import build_embedded_lstm
 
 
 def set_seeds(seed: int):
@@ -50,6 +53,9 @@ def set_seeds(seed: int):
 def train_embedded_lstm():
     print("=" * 60)
     print("   EMBEDDED LSTM TRAINING (MULTI-SITE)")
+    print("=" * 60)
+    print(f"   Training version: {MODEL_VERSION}")
+    print(f"   Plots directory: {PLOTS_DIR}")
     print("=" * 60)
 
     set_seeds(RANDOM_SEED)
@@ -148,15 +154,32 @@ def train_embedded_lstm():
     rmse = np.sqrt(np.mean((y_test - y_pred) ** 2))
     mae = np.mean(np.abs(y_test - y_pred))
 
-    os.makedirs(os.path.dirname(METRICS_PATH), exist_ok=True)
-    with open(METRICS_PATH, "w") as f:
-        f.write("Embedded LSTM Model Performance\n")
-        f.write("=" * 40 + "\n")
-        f.write(f"Train samples: {len(y_train)}\n")
-        f.write(f"Test samples:  {len(y_test)}\n")
-        f.write(f"Sites used:    {NUM_SITES}\n\n")
-        f.write(f"RMSE: {rmse:.6f}\n")
-        f.write(f"MAE:  {mae:.6f}\n")
+    # os.makedirs(os.path.dirname(METRICS_PATH), exist_ok=True)
+    # with open(METRICS_PATH, "w") as f:
+    #     f.write("Embedded LSTM Model Performance\n")
+    #     f.write("=" * 40 + "\n")
+    #     f.write(f"Train samples: {len(y_train)}\n")
+    #     f.write(f"Test samples:  {len(y_test)}\n")
+    #     f.write(f"Sites used:    {NUM_SITES}\n\n")
+    #     f.write(f"RMSE: {rmse:.6f}\n")
+    #     f.write(f"MAE:  {mae:.6f}\n")
+
+    save_metrics(
+        model_name="embedded_lstm",
+        model_version=MODEL_VERSION,  # Use auto-detected version
+        metrics={
+            "rmse": rmse,
+            "mae": mae
+        },
+        output_path=METRICS_PATH,
+        extra_info={
+            "model_type": "lstm",
+            "scope": "multi_site",
+            "num_sites": NUM_SITES,
+            "embedding_dim": EMBEDDING_DIM
+        }
+    )
+
 
     print("\n" + "=" * 60)
     print("   EMBEDDED LSTM TRAINING COMPLETE")
@@ -165,7 +188,8 @@ def train_embedded_lstm():
     print(f"   Test MAE:  {mae:.4f}")
     print(f"\n   Model saved to:  {MODEL_PATH}")
     print(f"   Scaler saved to: {SCALER_PATH}")
-    print(f"   Metrics saved to:{METRICS_PATH}")
+    print(f"   Metrics saved to: {METRICS_PATH}")
+    print(f"   Plots will be saved to: {PLOTS_DIR}")
 
     return model, history, (X_site_test, X_feat_test, y_test)
 
@@ -180,9 +204,9 @@ if __name__ == "__main__":
     print("\n📊 Generating plots...")
     y_true, y_pred, site_ids, rmse, mae, site_mae = evaluate_embedded()
     
-    plot_training_history(history, "src/evaluation/embedded")
-    plot_predictions(y_true, y_pred, "src/evaluation/embedded")
-    plot_error_distribution(y_true, y_pred, "src/evaluation/embedded")
-    plot_site_mae(site_mae, "src/evaluation/embedded")
+    plot_training_history(history, PLOTS_DIR)
+    plot_predictions(y_true, y_pred, PLOTS_DIR)
+    plot_error_distribution(y_true, y_pred, PLOTS_DIR)
+    plot_site_mae(site_mae, PLOTS_DIR)
     
-    print("✅ Plots saved to src/evaluation/embedded/")
+    print(f"✅ Plots saved to {PLOTS_DIR}")

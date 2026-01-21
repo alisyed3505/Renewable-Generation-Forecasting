@@ -4,6 +4,27 @@ Configuration for Embedded LSTM (Multi-Site with Site Embeddings)
 """
 
 # ==============================
+# AUTO-VERSIONING
+# ==============================
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from src.utils.auto_version import get_versioned_paths
+
+# Auto-detect next version or use environment variable override
+# Usage: set MODEL_VERSION=v1 to force a specific version
+_MODEL_VERSION = os.getenv("MODEL_VERSION")
+if _MODEL_VERSION:
+    # Use explicit version from environment
+    _paths = get_versioned_paths("embedded_lstm", version=_MODEL_VERSION)
+else:
+    # Auto-detect next available version
+    _paths = get_versioned_paths("embedded_lstm")
+
+MODEL_VERSION = _paths["version"]
+
+# ==============================
 # DATA
 # ==============================
 
@@ -44,9 +65,10 @@ DROPOUT_RATE = 0.2
 from config.baseline import FEATURE_COLS_BASELINE
 
 # ==============================
-# ARTIFACT PATHS
+# ARTIFACT PATHS (Auto-versioned)
 # ==============================
 
-MODEL_PATH = "models/embedded_lstm.keras"
-SCALER_PATH = "models/embedded_scaler.pkl"
-METRICS_PATH = "models/metrics/embedded_metrics.txt"
+MODEL_PATH = _paths["model_path"]
+SCALER_PATH = _paths["scaler_path"]
+METRICS_PATH = _paths["metrics_path"]
+PLOTS_DIR = _paths["plots_dir"]  # NEW: Version-specific plots directory
