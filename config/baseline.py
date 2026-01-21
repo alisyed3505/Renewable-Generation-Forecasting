@@ -8,9 +8,25 @@ IMPORTANT:
 - site_id is NOT used
 """
 # ==============================
-# MODEL VERSION
+# AUTO-VERSIONING
 # ==============================
-MODEL_VERSION = "v1"
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from src.utils.auto_version import get_versioned_paths
+
+# Auto-detect next version or use environment variable override
+# Usage: set MODEL_VERSION=v1 to force a specific version
+_MODEL_VERSION = os.getenv("MODEL_VERSION")
+if _MODEL_VERSION:
+    # Use explicit version from environment
+    _paths = get_versioned_paths("baseline_lstm", version=_MODEL_VERSION)
+else:
+    # Auto-detect next available version
+    _paths = get_versioned_paths("baseline_lstm")
+
+MODEL_VERSION = _paths["version"]
 
 # ==============================
 # DATA
@@ -28,22 +44,22 @@ TEST_SPLIT = 0.2         # final test split
 VAL_SPLIT = 0.2          # validation split during training
 
 # ==============================
-# TRAINING
+# TRAINING (Optuna-optimized for v2)
 # ==============================
 
 BATCH_SIZE = 32
 EPOCHS = 50
-LEARNING_RATE = 1e-3
+LEARNING_RATE = 0.006817739988871779  # Optuna best
 RANDOM_SEED = 42
 
 # ==============================
-# MODEL ARCHITECTURE
+# MODEL ARCHITECTURE (Optuna-optimized for v2)
 # ==============================
 
-LSTM_UNITS_1 = 64
-LSTM_UNITS_2 = 32
-DENSE_UNITS = 16
-DROPOUT_RATE = 0.2
+LSTM_UNITS_1 = 78   # Optuna best (was 64)
+LSTM_UNITS_2 = 16   # Optuna best (was 32)
+DENSE_UNITS = 14    # Optuna best (was 16)
+DROPOUT_RATE = 0.317  # Optuna best (was 0.2)
 
 # ==============================
 # FEATURES (NO site_id)
@@ -73,9 +89,10 @@ FEATURE_COLS_BASELINE = [
 ]
 
 # ==============================
-# ARTIFACT PATHS
+# ARTIFACT PATHS (Auto-versioned)
 # ==============================
 
-MODEL_PATH = f"models/baseline_lstm_{MODEL_VERSION}.keras"
-SCALER_PATH = f"models/baseline_scaler_{MODEL_VERSION}.pkl"
-METRICS_PATH = f"models/metrics/baseline_metrics_{MODEL_VERSION}.json"
+MODEL_PATH = _paths["model_path"]
+SCALER_PATH = _paths["scaler_path"]
+METRICS_PATH = _paths["metrics_path"]
+PLOTS_DIR = _paths["plots_dir"]  # NEW: Version-specific plots directory
