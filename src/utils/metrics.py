@@ -26,6 +26,25 @@ def save_metrics(
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
+    # Convert numpy types to Python native types for JSON serialization
+    def convert_numpy_types(obj):
+        """Recursively convert numpy types to Python native types."""
+        import numpy as np
+        if isinstance(obj, dict):
+            return {k: convert_numpy_types(v) for k, v in obj.items()}
+        elif isinstance(obj, (list, tuple)):
+            return [convert_numpy_types(item) for item in obj]
+        elif isinstance(obj, (np.integer, np.int32, np.int64)):
+            return int(obj)
+        elif isinstance(obj, (np.floating, np.float32, np.float64)):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return obj
+    
+    payload = convert_numpy_types(payload)
+    
     with open(output_path, "w") as f:
         json.dump(payload, f, indent=2)
 
