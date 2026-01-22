@@ -1,0 +1,13 @@
+{
+  "model_name": "embedded_lstm",
+  "model_version": "v2",
+  "metrics": {
+    "rmse": 0.08174199844805424,
+    "mae": 0.04060052262540782
+  },
+  "timestamp": "2026-01-21T19:08:13.351161",
+  "model_type": "lstm",
+  "scope": "multi_site",
+  "num_sites": 21,
+  "embedding_dim": 2
+}

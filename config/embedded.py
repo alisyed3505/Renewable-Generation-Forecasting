@@ -52,11 +52,22 @@ RANDOM_SEED = 42
 # MODEL
 # ==============================
 
+# v1 defaults (baseline multi-site LSTM)
 EMBEDDING_DIM = 4
 LSTM_UNITS_1 = 64
 LSTM_UNITS_2 = 32
 DENSE_UNITS = 16
 DROPOUT_RATE = 0.2
+
+# v2 Optuna-optimized hyperparameters (Trial 26, val_loss: 0.006052)
+if MODEL_VERSION == "v2":
+    EMBEDDING_DIM = 2
+    LSTM_UNITS_1 = 85
+    LSTM_UNITS_2 = 33
+    DENSE_UNITS = 27
+    DROPOUT_RATE = 0.243373
+    LEARNING_RATE = 0.002073
+    BATCH_SIZE = 64
 
 # ==============================
 # FEATURES

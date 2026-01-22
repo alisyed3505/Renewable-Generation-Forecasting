@@ -41,7 +41,15 @@ from config.embedded import (
 )
 
 from src.data.embedded.data_loader import preprocess_embedded_data
-from src.models.embedded.lstm_v1 import build_embedded_lstm
+
+# Version-aware model import
+if MODEL_VERSION == "v1":
+    from src.models.embedded.lstm_v1 import build_embedded_lstm
+elif MODEL_VERSION == "v2":
+    from src.models.embedded.lstm_v2 import build_embedded_lstm
+else:
+    # Default to v1 for any other version
+    from src.models.embedded.lstm_v1 import build_embedded_lstm
 
 
 def set_seeds(seed: int):

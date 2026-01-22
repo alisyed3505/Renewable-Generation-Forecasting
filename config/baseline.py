@@ -44,22 +44,33 @@ TEST_SPLIT = 0.2         # final test split
 VAL_SPLIT = 0.2          # validation split during training
 
 # ==============================
-# TRAINING (Optuna-optimized for v2)
+# TRAINING
 # ==============================
 
+# v1 defaults
 BATCH_SIZE = 32
 EPOCHS = 50
-LEARNING_RATE = 0.006817739988871779  # Optuna best
+LEARNING_RATE = 1e-3
 RANDOM_SEED = 42
 
 # ==============================
-# MODEL ARCHITECTURE (Optuna-optimized for v2)
+# MODEL ARCHITECTURE
 # ==============================
 
-LSTM_UNITS_1 = 78   # Optuna best (was 64)
-LSTM_UNITS_2 = 16   # Optuna best (was 32)
-DENSE_UNITS = 14    # Optuna best (was 16)
-DROPOUT_RATE = 0.317  # Optuna best (was 0.2)
+# v1 defaults
+LSTM_UNITS_1 = 64
+LSTM_UNITS_2 = 32
+DENSE_UNITS = 16
+DROPOUT_RATE = 0.2
+
+# v2 Optuna-optimized hyperparameters (50 trials, Trial 13, val_loss: 0.027381)
+if MODEL_VERSION == "v2":
+    LSTM_UNITS_1 = 85
+    LSTM_UNITS_2 = 51
+    DENSE_UNITS = 17
+    DROPOUT_RATE = 0.391
+    LEARNING_RATE = 0.000172
+    BATCH_SIZE = 128
 
 # ==============================
 # FEATURES (NO site_id)
