@@ -1,0 +1,89 @@
+[
+  {
+    "comparison": "Global LSTM (LOO) vs Naive 24h (local)",
+    "n_sites": 21,
+    "mean_rmse_a": 0.083245,
+    "mean_rmse_b": 0.114225,
+    "mean_diff": -0.03098,
+    "std_diff": 0.030827,
+    "wins_a": 20,
+    "wins_b": 1,
+    "ties": 0,
+    "paired_ttest": {
+      "t_statistic": -4.6053,
+      "p_value": 0.000171,
+      "significant_005": true,
+      "significant_001": true,
+      "holm_adjusted_alpha": 0.016667,
+      "holm_significant": true
+    },
+    "wilcoxon": {
+      "w_statistic": 21.0,
+      "p_value": 0.000426,
+      "significant_005": true,
+      "significant_001": true,
+      "holm_adjusted_alpha": 0.025,
+      "holm_significant": true
+    },
+    "cohens_d": -1.005,
+    "better_model": "Global LSTM (LOO)"
+  },
+  {
+    "comparison": "Global LSTM (LOO) vs XGBoost (local)",
+    "n_sites": 21,
+    "mean_rmse_a": 0.083245,
+    "mean_rmse_b": 0.067863,
+    "mean_diff": 0.015382,
+    "std_diff": 0.023815,
+    "wins_a": 4,
+    "wins_b": 17,
+    "ties": 0,
+    "paired_ttest": {
+      "t_statistic": 2.96,
+      "p_value": 0.007742,
+      "significant_005": true,
+      "significant_001": true,
+      "holm_adjusted_alpha": 0.025,
+      "holm_significant": true
+    },
+    "wilcoxon": {
+      "w_statistic": 16.0,
+      "p_value": 0.000161,
+      "significant_005": true,
+      "significant_001": true,
+      "holm_adjusted_alpha": 0.016667,
+      "holm_significant": true
+    },
+    "cohens_d": 0.6459,
+    "better_model": "XGBoost (local)"
+  },
+  {
+    "comparison": "Global LSTM (LOO) vs Baseline LSTM (local)",
+    "n_sites": 21,
+    "mean_rmse_a": 0.083245,
+    "mean_rmse_b": 0.109793,
+    "mean_diff": -0.026547,
+    "std_diff": 0.051417,
+    "wins_a": 11,
+    "wins_b": 9,
+    "ties": 1,
+    "paired_ttest": {
+      "t_statistic": -2.3661,
+      "p_value": 0.028188,
+      "significant_005": true,
+      "significant_001": false,
+      "holm_adjusted_alpha": 0.05,
+      "holm_significant": true
+    },
+    "wilcoxon": {
+      "w_statistic": 66.0,
+      "p_value": 0.1454,
+      "significant_005": false,
+      "significant_001": false,
+      "holm_adjusted_alpha": 0.05,
+      "holm_significant": false
+    },
+    "cohens_d": -0.5163,
+    "better_model": "Global LSTM (LOO)"
+  }
+]
