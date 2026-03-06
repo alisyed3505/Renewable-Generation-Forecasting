@@ -1,0 +1,28 @@
+{
+  "model_name": "xgboost_quantile",
+  "model_version": "v1",
+  "metrics": {
+    "median_rmse": 0.05766718462109566,
+    "median_mae": 0.026278333738446236,
+    "coverage_10_90": 86.17363344051448,
+    "avg_interval_width": 0.09344369173049927
+  },
+  "timestamp": "2026-03-04T03:13:39.145451",
+  "model_type": "xgboost_quantile",
+  "scope": "single_site",
+  "site": "pv_01",
+  "quantiles": [
+    0.1,
+    0.5,
+    0.9
+  ],
+  "max_depth": 9,
+  "min_child_weight": 6,
+  "learning_rate": 0.02971,
+  "n_estimators": 130,
+  "gamma": 0.007025,
+  "subsample": 0.845905,
+  "colsample_bytree": 0.87999,
+  "reg_alpha": 3.353364,
+  "reg_lambda": 2.981327
+}
