@@ -1,0 +1,8 @@
+{
+  "gru_1_units": 55,
+  "gru_2_units": 53,
+  "dense_units": 20,
+  "dropout": 0.4518442820702897,
+  "lr": 0.0005001899565215517,
+  "batch_size": 128
+}
