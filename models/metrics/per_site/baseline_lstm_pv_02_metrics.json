@@ -1,0 +1,20 @@
+{
+  "model_name": "baseline_lstm",
+  "model_version": "per_site",
+  "metrics": {
+    "rmse": 0.059587669134436964,
+    "mae": 0.029603749121953002
+  },
+  "timestamp": "2026-03-04T03:04:54.803524",
+  "model_type": "lstm",
+  "scope": "per_site",
+  "site": "pv_02",
+  "time_steps": 8,
+  "epochs_max": 50,
+  "lstm_units": [
+    64,
+    32
+  ],
+  "dense_units": 16,
+  "dropout_rate": 0.2
+}

@@ -1,0 +1,21 @@
+{
+  "model_name": "xgboost",
+  "model_version": "per_site",
+  "metrics": {
+    "rmse": 0.10181164741516113,
+    "mae": 0.05521385371685028
+  },
+  "timestamp": "2026-03-04T03:07:44.973089",
+  "model_type": "xgboost",
+  "scope": "per_site",
+  "site": "pv_12",
+  "max_depth": 9,
+  "min_child_weight": 6,
+  "learning_rate": 0.02971,
+  "n_estimators": 130,
+  "gamma": 0.007025,
+  "subsample": 0.845905,
+  "colsample_bytree": 0.87999,
+  "reg_alpha": 3.353364,
+  "reg_lambda": 2.981327
+}

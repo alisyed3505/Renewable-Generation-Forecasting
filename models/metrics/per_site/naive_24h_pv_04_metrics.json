@@ -1,0 +1,14 @@
+{
+  "model_name": "naive_24h",
+  "model_version": "per_site",
+  "metrics": {
+    "rmse": 0.06480197608470917,
+    "mae": 0.02806198224425316
+  },
+  "timestamp": "2026-03-04T03:05:02.696025",
+  "model_type": "naive",
+  "scope": "per_site",
+  "site": "pv_04",
+  "time_steps": 8,
+  "n_test_samples": 1205
+}

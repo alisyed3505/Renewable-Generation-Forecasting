@@ -1,0 +1,20 @@
+{
+  "model_name": "baseline_gru",
+  "model_version": "per_site",
+  "metrics": {
+    "rmse": 0.10367178772356504,
+    "mae": 0.05439624568157454
+  },
+  "timestamp": "2026-03-06T07:15:57.335850",
+  "model_type": "gru",
+  "scope": "per_site",
+  "site": "pv_13",
+  "time_steps": 8,
+  "epochs_max": 50,
+  "gru_units": [
+    64,
+    32
+  ],
+  "dense_units": 16,
+  "dropout_rate": 0.2
+}
