@@ -69,6 +69,14 @@ if MODEL_VERSION == "v2":
     LEARNING_RATE = 0.002073
     BATCH_SIZE = 64
 
+# v3: Leave-One-Site-Out experiment (v1 defaults for fair generalization test)
+if MODEL_VERSION == "v3":
+    NUM_SITES = 21  # 20 training + 1 cold-start embedding slot for unseen site
+    EMBEDDING_DIM = 4
+    LEAVE_ONE_OUT = True
+else:
+    LEAVE_ONE_OUT = False
+
 # ==============================
 # FEATURES
 # ==============================

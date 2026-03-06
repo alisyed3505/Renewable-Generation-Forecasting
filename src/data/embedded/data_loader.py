@@ -18,25 +18,41 @@ from config.embedded import TIME_STEPS
 from config.baseline import FEATURE_COLS_BASELINE
 
 
-def load_all_sites(data_glob):
+def load_all_sites(data_glob, exclude_sites=None):
     """
     Load all PV site CSVs and attach site_id.
+
+    Args:
+        data_glob: Glob pattern for site CSVs
+        exclude_sites: Optional set/list of site indices (0-based) to skip.
+                       Used for leave-one-site-out experiments.
     """
     files = sorted(glob.glob(data_glob))
     if not files:
         raise FileNotFoundError(f"No files found for pattern: {data_glob}")
 
-    dfs = []
+    if exclude_sites is None:
+        exclude_sites = set()
+    else:
+        exclude_sites = set(exclude_sites)
 
-    for site_id, path in enumerate(files):
+    dfs = []
+    new_site_id = 0  # Re-index sites contiguously after exclusion
+
+    for original_id, path in enumerate(files):
+        if original_id in exclude_sites:
+            continue
+
         df = pd.read_csv(path, delimiter=";")
 
         # Drop unnamed trailing column if present
         if df.columns[-1].startswith("Unnamed"):
             df = df.iloc[:, :-1]
 
-        df["site_id"] = site_id
+        df["site_id"] = new_site_id
+        df["original_site_id"] = original_id  # Keep track of original index
         dfs.append(df)
+        new_site_id += 1
 
     return dfs
 
@@ -63,11 +79,16 @@ def create_site_sequences(df, time_steps):
     )
 
 
-def preprocess_embedded_data(data_glob, scaler_path):
+def preprocess_embedded_data(data_glob, scaler_path, exclude_sites=None):
     """
     Load, scale, and sequence multi-site data.
+
+    Args:
+        data_glob: Glob pattern for site CSVs
+        scaler_path: Path to save the fitted scaler
+        exclude_sites: Optional set/list of site indices (0-based) to skip
     """
-    dfs = load_all_sites(data_glob)
+    dfs = load_all_sites(data_glob, exclude_sites=exclude_sites)
 
     # Fit scaler on ALL data (same as baseline philosophy)
     all_features = pd.concat(dfs)[FEATURE_COLS_BASELINE].ffill().bfill()

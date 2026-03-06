@@ -1,0 +1,18 @@
+{
+  "model_name": "embedded_lstm",
+  "model_version": "v3_leave_one_out",
+  "metrics": {
+    "rmse": 0.0662412790547375,
+    "mae": 0.03362436614229375
+  },
+  "timestamp": "2026-03-04T06:35:01.715008",
+  "model_type": "lstm",
+  "scope": "leave_one_out",
+  "site": "pv_09",
+  "held_out_site": "pv_09",
+  "held_out_site_idx": 8,
+  "num_train_sites": 20,
+  "embedding_dim": 4,
+  "insample_rmse": 0.07852890363588368,
+  "insample_mae": 0.03882770137273421
+}
