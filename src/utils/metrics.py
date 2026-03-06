@@ -48,4 +48,4 @@ def save_metrics(
     with open(output_path, "w") as f:
         json.dump(payload, f, indent=2)
 
-    print(f"✅ Metrics saved to: {output_path}")
+    print(f"[OK] Metrics saved to: {output_path}")
